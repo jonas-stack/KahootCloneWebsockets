@@ -1,10 +1,11 @@
 # Kahoot Clone - WebSocket-Based Quiz Game
 
-This project is a **Kahoot-like quiz application** developed using **ASP.NET Core** with **WebSockets** for real-time interactions. It spans **weeks 9 and 10** of the Fullstack 2025 curriculum and serves as a practical implementation of WebSocket-based applications.
+This project is a **Kahoot-like quiz application** developed using **React TypeScript** for the frontend and **.NET 8 (C#)** for the backend.  
+It spans **weeks 9 and 10** of the Fullstack 2025 curriculum and is a practical implementation of real-time WebSocket-based communication.
 
 The project is built using:
-- **Backend:** .NET 8, Entity Framework, PostgreSQL, WebSockets
-- **Frontend:** Firebase Hosting (planned for deployment)
+- **Frontend:** React TypeScript, Vite, Firebase Hosting (planned deployment)
+- **Backend:** C# .NET 8, Entity Framework, PostgreSQL, WebSockets
 - **Database:** PostgreSQL (local for development, Fly.io for production)
 - **Deployment:** Docker, GitHub Actions, Fly.io
 
@@ -18,7 +19,7 @@ This project implements the **core features of a quiz application**, including:
 ✅ Players **submit answers**, which are processed in real-time.  
 ✅ After a **time delay**, the server broadcasts the **round results**.  
 ✅ The game progresses through multiple rounds until it ends.  
-✅ **Persistent data is stored in PostgreSQL**, while WebSocket state is managed in memory.  
+✅ **Persistent data is stored in PostgreSQL**, while WebSocket state is managed in memory.   
 
 ---
 
