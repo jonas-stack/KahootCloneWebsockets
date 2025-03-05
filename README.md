@@ -13,6 +13,7 @@ The project is built using:
 
 ## **📌 Project Overview**
 This project implements the **core features of a quiz application**, including:
+
 ✅ Players can join a **lobby**.  
 ✅ An admin can **start a game** and move players into a **game room**.  
 ✅ The admin can **broadcast questions** to all clients in the game.  

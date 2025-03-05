@@ -47,6 +47,10 @@
         "net8.0": {
           "targetAlias": "net8.0",
           "dependencies": {
+            "Fleck": {
+              "target": "Package",
+              "version": "[1.2.0, )"
+            },
             "Microsoft.AspNetCore.OpenApi": {
               "target": "Package",
               "version": "[8.0.13, )"
@@ -58,6 +62,10 @@
             "Swashbuckle.AspNetCore": {
               "target": "Package",
               "version": "[6.6.2, )"
+            },
+            "uldahlalex.websocket.boilerplate": {
+              "target": "Package",
+              "version": "[2.3.3, )"
             }
           },
           "imports": [

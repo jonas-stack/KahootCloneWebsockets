@@ -2,6 +2,15 @@
   "version": 3,
   "targets": {
     "net8.0": {
+      "Fleck/1.2.0": {
+        "type": "package",
+        "compile": {
+          "lib/netcoreapp2.0/Fleck.dll": {}
+        },
+        "runtime": {
+          "lib/netcoreapp2.0/Fleck.dll": {}
+        }
+      },
       "Microsoft.AspNetCore.OpenApi/8.0.13": {
         "type": "package",
         "dependencies": {
@@ -395,6 +404,72 @@
           "buildTransitive/net8.0/_._": {}
         }
       },
+      "System.Reactive/6.0.0": {
+        "type": "package",
+        "compile": {
+          "lib/net6.0/System.Reactive.dll": {
+            "related": ".xml"
+          }
+        },
+        "runtime": {
+          "lib/net6.0/System.Reactive.dll": {
+            "related": ".xml"
+          }
+        },
+        "build": {
+          "buildTransitive/net6.0/_._": {}
+        }
+      },
+      "System.Threading.Channels/7.0.0": {
+        "type": "package",
+        "compile": {
+          "lib/net7.0/System.Threading.Channels.dll": {
+            "related": ".xml"
+          }
+        },
+        "runtime": {
+          "lib/net7.0/System.Threading.Channels.dll": {
+            "related": ".xml"
+          }
+        },
+        "build": {
+          "buildTransitive/net6.0/_._": {}
+        }
+      },
+      "uldahlalex.websocket.boilerplate/2.3.3": {
+        "type": "package",
+        "dependencies": {
+          "Fleck": "1.2.0",
+          "Websocket.Client": "5.0.0"
+        },
+        "compile": {
+          "lib/net8.0/Websocket.Boilerplate.dll": {}
+        },
+        "runtime": {
+          "lib/net8.0/Websocket.Boilerplate.dll": {}
+        },
+        "frameworkReferences": [
+          "Microsoft.AspNetCore.App"
+        ]
+      },
+      "Websocket.Client/5.0.0": {
+        "type": "package",
+        "dependencies": {
+          "Microsoft.Extensions.Logging.Abstractions": "7.0.1",
+          "System.Reactive": "6.0.0",
+          "System.Threading.Channels": "7.0.0"
+        },
+        "compile": {
+          "lib/net7.0/Websocket.Client.dll": {
+            "related": ".xml"
+          }
+        },
+        "runtime": {
+          "lib/net7.0/Websocket.Client.dll": {
+            "related": ".xml"
+          }
+        }
+      },
       "DataAccess/1.0.0": {
         "type": "project",
         "framework": ".NETCoreApp,Version=v8.0",
@@ -411,6 +486,21 @@
     }
   },
   "libraries": {
+    "Fleck/1.2.0": {
+      "sha512": "bPLXn6QbLAFoviur6XbrKB0Zn6x04E8VibHXyHZeJsoC7bkUl5DVtzM5cZgDuqHkIrBqAXJyTNJwSNIc6wBJ2Q==",
+      "type": "package",
+      "path": "fleck/1.2.0",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "fleck.1.2.0.nupkg.sha512",
+        "fleck.nuspec",
+        "lib/net40/Fleck.dll",
+        "lib/net45/Fleck.dll",
+        "lib/netcoreapp2.0/Fleck.dll",
+        "lib/netstandard2.0/Fleck.dll"
+      ]
+    },
     "Microsoft.AspNetCore.OpenApi/8.0.13": {
       "sha512": "j5Ti7HD/nQpYM5re8QefQc0XyiNOagIaINIAdOPyeRgxKW69f1optcaQxi7Z7jM1q8Rsqw1IMZDig9mJsBZqPw==",
       "type": "package",
@@ -1216,6 +1306,95 @@
         "useSharedDesignerContext.txt"
       ]
     },
+    "System.Reactive/6.0.0": {
+      "sha512": "31kfaW4ZupZzPsI5PVe77VhnvFF55qgma7KZr/E0iFTs6fmdhhG8j0mgEx620iLTey1EynOkEfnyTjtNEpJzGw==",
+      "type": "package",
+      "path": "system.reactive/6.0.0",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "build/net6.0-windows10.0.19041/_._",
+        "build/net6.0/_._",
+        "buildTransitive/net6.0-windows10.0.19041/_._",
+        "buildTransitive/net6.0/_._",
+        "icon.png",
+        "lib/net472/System.Reactive.dll",
+        "lib/net472/System.Reactive.xml",
+        "lib/net6.0-windows10.0.19041/System.Reactive.dll",
+        "lib/net6.0-windows10.0.19041/System.Reactive.xml",
+        "lib/net6.0/System.Reactive.dll",
+        "lib/net6.0/System.Reactive.xml",
+        "lib/netstandard2.0/System.Reactive.dll",
+        "lib/netstandard2.0/System.Reactive.xml",
+        "lib/uap10.0.18362/System.Reactive.dll",
+        "lib/uap10.0.18362/System.Reactive.pri",
+        "lib/uap10.0.18362/System.Reactive.xml",
+        "readme.md",
+        "system.reactive.6.0.0.nupkg.sha512",
+        "system.reactive.nuspec"
+      ]
+    },
+    "System.Threading.Channels/7.0.0": {
+      "sha512": "qmeeYNROMsONF6ndEZcIQ+VxR4Q/TX/7uIVLJqtwIWL7dDWeh0l1UIqgo4wYyjG//5lUNhwkLDSFl+pAWO6oiA==",
+      "type": "package",
+      "path": "system.threading.channels/7.0.0",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "Icon.png",
+        "LICENSE.TXT",
+        "THIRD-PARTY-NOTICES.TXT",
+        "buildTransitive/net461/System.Threading.Channels.targets",
+        "buildTransitive/net462/_._",
+        "buildTransitive/net6.0/_._",
+        "buildTransitive/netcoreapp2.0/System.Threading.Channels.targets",
+        "lib/net462/System.Threading.Channels.dll",
+        "lib/net462/System.Threading.Channels.xml",
+        "lib/net6.0/System.Threading.Channels.dll",
+        "lib/net6.0/System.Threading.Channels.xml",
+        "lib/net7.0/System.Threading.Channels.dll",
+        "lib/net7.0/System.Threading.Channels.xml",
+        "lib/netstandard2.0/System.Threading.Channels.dll",
+        "lib/netstandard2.0/System.Threading.Channels.xml",
+        "lib/netstandard2.1/System.Threading.Channels.dll",
+        "lib/netstandard2.1/System.Threading.Channels.xml",
+        "system.threading.channels.7.0.0.nupkg.sha512",
+        "system.threading.channels.nuspec",
+        "useSharedDesignerContext.txt"
+      ]
+    },
+    "uldahlalex.websocket.boilerplate/2.3.3": {
+      "sha512": "0QRSrEn92jYgvdFaZLYV/n3rzRJ6H7hJyquRetJtUDw/bYn/ANfB0/H5E9x1JJUT8sFgmQ4xEXQVHUSUljJqXg==",
+      "type": "package",
+      "path": "uldahlalex.websocket.boilerplate/2.3.3",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "lib/net8.0/Websocket.Boilerplate.dll",
+        "uldahlalex.websocket.boilerplate.2.3.3.nupkg.sha512",
+        "uldahlalex.websocket.boilerplate.nuspec"
+      ]
+    },
+    "Websocket.Client/5.0.0": {
+      "sha512": "6CG+9GPj3VsqlKBR5tD/36SF/XTdu4CLMIgLsgrKMhQHvPX01Tfu7kkWNZg/vONadChhbZsNw6KnpYddnwmfxA==",
+      "type": "package",
+      "path": "websocket.client/5.0.0",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "README.md",
+        "icon-modern.png",
+        "icon.png",
+        "lib/net6.0/Websocket.Client.dll",
+        "lib/net6.0/Websocket.Client.xml",
+        "lib/net7.0/Websocket.Client.dll",
+        "lib/net7.0/Websocket.Client.xml",
+        "lib/netstandard2.1/Websocket.Client.dll",
+        "lib/netstandard2.1/Websocket.Client.xml",
+        "websocket.client.5.0.0.nupkg.sha512",
+        "websocket.client.nuspec"
+      ]
+    },
     "DataAccess/1.0.0": {
       "type": "project",
       "path": "../DataAccess/DataAccess.csproj",
@@ -1225,9 +1404,11 @@
   "projectFileDependencyGroups": {
     "net8.0": [
       "DataAccess >= 1.0.0",
+      "Fleck >= 1.2.0",
       "Microsoft.AspNetCore.OpenApi >= 8.0.13",
       "Npgsql.EntityFrameworkCore.PostgreSQL >= 9.0.4",
-      "Swashbuckle.AspNetCore >= 6.6.2"
+      "Swashbuckle.AspNetCore >= 6.6.2",
+      "uldahlalex.websocket.boilerplate >= 2.3.3"
     ]
   },
   "packageFolders": {
@@ -1276,6 +1457,10 @@
       "net8.0": {
         "targetAlias": "net8.0",
         "dependencies": {
+          "Fleck": {
+            "target": "Package",
+            "version": "[1.2.0, )"
+          },
           "Microsoft.AspNetCore.OpenApi": {
             "target": "Package",
             "version": "[8.0.13, )"
@@ -1287,6 +1472,10 @@
           "Swashbuckle.AspNetCore": {
             "target": "Package",
             "version": "[6.6.2, )"
+          },
+          "uldahlalex.websocket.boilerplate": {
+            "target": "Package",
+            "version": "[2.3.3, )"
           }
         },
         "imports": [
