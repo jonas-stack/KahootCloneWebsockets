@@ -27,8 +27,18 @@ public class CustomWebSocketServer(IConnectionManager manager, ILogger<CustomWeb
 
             var id = HttpUtility.ParseQueryString(queryString)["id"];
 
-            socket.OnOpen = () => manager.OnOpen(socket, id);
-            socket.OnClose = () => manager.OnClose(socket, id);
+            socket.OnOpen = () =>
+            {
+                logger.LogInformation($"Socket connected: {socket.ConnectionInfo.Id}");
+                manager.OnOpen(socket, id);
+            };
+
+            socket.OnClose = () =>
+            {
+                logger.LogInformation($"Socket disconnected: {socket.ConnectionInfo.Id}");
+                manager.OnClose(socket, id);
+            };
+            
             socket.OnMessage = message =>
             {
                 Task.Run(async () =>
