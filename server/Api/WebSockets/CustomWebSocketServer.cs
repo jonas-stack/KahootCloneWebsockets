@@ -10,7 +10,10 @@ namespace Api.WebSockets;
 public class CustomWebSocketServer(IConnectionManager manager, ILogger<CustomWebSocketServer> logger)
 {
     public void Start(WebApplication app)
-    {
+    {   
+        //TODO lokal port
+        //var port = GetAvailablePort(5005);
+        //TODO deploy port 
         var port = GetAvailablePort(8080);
         Environment.SetEnvironmentVariable("PORT", port.ToString());
         var url = $"ws://0.0.0.0:{port}";
