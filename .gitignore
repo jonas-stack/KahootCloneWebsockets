@@ -5,7 +5,6 @@
 
 # dotenv files
 .env
-appsettings.json
 
 
 # User-specific files
@@ -484,3 +483,20 @@ $RECYCLE.BIN/
 
 # Vim temporary swap files
 *.swp
+
+# Build & binære filer
+bin/
+obj/
+
+# NuGet & cache filer
+*.nuget.*
+project.assets.json
+project.nuget.cache
+project.packagespec.json
+rider.project.*
+.vscode/
+.idea/
+
+# Docker volumes (Hvis du bruger named volumes)
+server/DataAccess/db-data/
+

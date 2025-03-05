@@ -1,0 +1,38 @@
+﻿version: '3.9'
+
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: kahoot_api
+    ports:
+      - "8080:80"
+    depends_on:
+      - db
+    environment:
+      - ConnectionStrings__DefaultConnection=Host=db;Database=exampledb;Username=example;Password=example
+    networks:
+      - kahoot_network
+
+  db:
+    image: postgres:13
+    container_name: kahoot_db
+    environment:
+      POSTGRES_USER: example
+      POSTGRES_PASSWORD: example
+      POSTGRES_DB: exampledb
+    ports:
+      - "5432:5432"
+    volumes:
+      - db-data:/var/lib/postgresql/data
+      - ./server/DataAccess/schema.sql:/docker-entrypoint-initdb.d/schema.sql
+    networks:
+      - kahoot_network
+
+volumes:
+  db-data:
+
+networks:
+  kahoot_network:
+    driver: bridge
