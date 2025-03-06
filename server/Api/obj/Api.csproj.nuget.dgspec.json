@@ -147,6 +147,10 @@
             "Npgsql.EntityFrameworkCore.PostgreSQL": {
               "target": "Package",
               "version": "[9.0.4, )"
+            },
+            "uldahlalex.websocket.boilerplate": {
+              "target": "Package",
+              "version": "[2.3.3, )"
             }
           },
           "imports": [

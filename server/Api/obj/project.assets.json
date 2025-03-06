@@ -474,7 +474,8 @@
         "type": "project",
         "framework": ".NETCoreApp,Version=v8.0",
         "dependencies": {
-          "Npgsql.EntityFrameworkCore.PostgreSQL": "9.0.4"
+          "Npgsql.EntityFrameworkCore.PostgreSQL": "9.0.4",
+          "uldahlalex.websocket.boilerplate": "2.3.3"
         },
         "compile": {
           "bin/placeholder/DataAccess.dll": {}

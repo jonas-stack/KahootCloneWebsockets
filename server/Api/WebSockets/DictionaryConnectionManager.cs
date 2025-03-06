@@ -1,5 +1,6 @@
 ﻿using System.Collections.Concurrent;
 using System.Text.Json;
+using Api.EventHandlers.Dtos;
 using Fleck;
 using WebSocketBoilerplate;
 
@@ -190,9 +191,4 @@ public class DictionaryConnectionManager(ILogger<DictionaryConnectionManager> lo
             WriteIndented = true
         }));
     }
-}
-
-public class MemberHasLeftDto : BaseDto
-{
-    public string MemberId { get; set; }
 }
