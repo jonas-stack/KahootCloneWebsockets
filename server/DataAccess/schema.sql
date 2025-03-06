@@ -39,3 +39,12 @@ create table kahoot.player_answer
     answer_timestamp   timestamp with time zone,
     primary key (player_id, question_id)
 );
+
+create table kahoot.round_result
+(
+    id          text primary key,
+    game_id     text references kahoot.game (id),
+    round_number int not null,
+    player_id   text references kahoot.player (id),
+    score       int not null
+);
