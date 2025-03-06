@@ -4,5 +4,5 @@ namespace Api.EventHandlers.Dtos;
 
 public class ServerSendsErrorMessageDto : BaseDto
 {
-    public string Error { get; set; }
+    public required string Error { get; set; }
 }

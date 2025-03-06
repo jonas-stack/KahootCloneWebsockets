@@ -4,9 +4,9 @@ namespace Api.EventHandlers.Dtos;
 
 public class GameDto : BaseDto
 {
-    public string Id { get; set; }
-    public string Name { get; set; }
-    public List<PlayerDto> Players { get; set; }
-    public List<QuestionDto> Questions { get; set; }
-    public List<RoundResultDto> RoundResults { get; set; }
+    public required string Id { get; set; }
+    public required string Name { get; set; }
+    public required List<PlayerDto> Players { get; set; }
+    public required List<QuestionDto> Questions { get; set; }
+    public required List<RoundResultDto> RoundResults { get; set; }
 }

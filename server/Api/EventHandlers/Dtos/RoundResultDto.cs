@@ -4,7 +4,7 @@ namespace Api.EventHandlers.Dtos;
 
 public class RoundResultDto : BaseDto
 {
-    public string Id { get; set; }
+    public required string Id { get; set; }
     public string? GameId { get; set; }
     public int RoundNumber { get; set; }
     public string? PlayerId { get; set; }

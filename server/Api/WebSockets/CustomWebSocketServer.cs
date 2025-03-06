@@ -30,12 +30,14 @@ public class CustomWebSocketServer(IConnectionManager manager, ILogger<CustomWeb
             socket.OnOpen = () =>
             {
                 logger.LogInformation($"Socket connected: {socket.ConnectionInfo.Id}");
+                if (id == null) throw new ArgumentNullException(nameof(id));
                 manager.OnOpen(socket, id);
             };
 
             socket.OnClose = () =>
             {
                 logger.LogInformation($"Socket disconnected: {socket.ConnectionInfo.Id}");
+                if (id == null) throw new ArgumentNullException(nameof(id));
                 manager.OnClose(socket, id);
             };
             
