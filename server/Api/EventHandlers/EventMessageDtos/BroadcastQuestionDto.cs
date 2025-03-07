@@ -10,13 +10,16 @@ namespace Api.EventHandlers.Dtos
         public BroadcastQuestionDto()
         {
             eventType = "BroadcastQuestion";
+            Topic = "lobby"; // default topic if not provided
         }
 
         public required Guid Id { get; set; }
         public required string QuestionText { get; set; }
-        public required List<QuestionOptionDto> QuestionOptions { get; set; } = new();
-        // Optionally, add additional properties such as a time limit.
+        public required List<QuestionOptionDto> QuestionOptions { get; set; } = new List<QuestionOptionDto>();
         public int TimeLimitSeconds { get; set; } = 30;
+        
+        // New property for the topic.
+        public string Topic { get; set; }
     }
 
     // DTO for each option in a question.
@@ -41,6 +44,5 @@ namespace Api.EventHandlers.Dtos
 
         public required Guid QuestionId { get; set; }
         public required string Message { get; set; }
-        public string? RequestId { get; set; }
     }
 }

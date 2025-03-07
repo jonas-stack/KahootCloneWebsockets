@@ -31,29 +31,28 @@ namespace Api.EventHandlers
                 return;
             }
 
-            _logger.LogDebug("BroadcastQuestionEventHandler invoked for question: {QuestionId}", dto.Id);
+            // Use the topic from the DTO, defaulting to "lobby" if not specified.
+            string topic = string.IsNullOrEmpty(dto.Topic) ? "lobby" : dto.Topic;
+            _logger.LogDebug("Broadcasting question {QuestionId} to topic '{Topic}'", dto.Id, topic);
 
-            // Choose the topic to broadcast to. Here we use "game" as an example.
-            string topic = "game";
-
-            // Broadcast the question to all clients subscribed to the topic.
+            // Broadcast the question to all clients in the specified topic.
             await _connectionManager.BroadcastToTopic(topic, dto);
             _logger.LogDebug("Broadcasted question {QuestionId} to topic '{Topic}'", dto.Id, topic);
 
-            // Start a 30-second timer (or use dto.TimeLimitSeconds if you want it dynamic).
-            _logger.LogDebug("Starting 30-second timer for question {QuestionId}", dto.Id);
+            // Start the timer for this question.
+            _logger.LogDebug("Starting {TimeLimitSeconds}-second timer for question {QuestionId}", dto.TimeLimitSeconds, dto.Id);
             await Task.Delay(dto.TimeLimitSeconds * 1000);
 
-            // After the timer ends, broadcast a message indicating that time is up.
+            // After the timer, broadcast a message indicating that time is up.
             var timeOverDto = new QuestionTimeOverDto
             {
                 QuestionId = dto.Id,
-                Message = "Time is up for answering the question.",
-                RequestId = dto.requestId
+                Message = "Time is up for answering the question."
             };
+            timeOverDto.requestId = dto.requestId;
 
             await _connectionManager.BroadcastToTopic(topic, timeOverDto);
-            _logger.LogDebug("Broadcasted end-of-question message for question {QuestionId}", dto.Id);
+            _logger.LogDebug("Broadcasted end-of-question message for question {QuestionId} in topic '{Topic}'", dto.Id, topic);
         }
     }
 }
