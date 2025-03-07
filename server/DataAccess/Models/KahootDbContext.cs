@@ -33,7 +33,7 @@ public partial class KahootDbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.HasPostgresExtension("kahoot", "pgcrypto");
+        modelBuilder.HasPostgresExtension("pgcrypto");
 
         modelBuilder.Entity<Game>(entity =>
         {

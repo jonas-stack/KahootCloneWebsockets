@@ -1,6 +1,6 @@
 ﻿using WebSocketBoilerplate;
 
-namespace Api.EventHandlers.Dtos;
+namespace DataAccess.ModelDtos;
 
 public class GameDto : BaseDto
 {

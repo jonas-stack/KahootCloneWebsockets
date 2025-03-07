@@ -1,5 +1,4 @@
-﻿using Api.EventHandlers.Dtos;
-using Api.WebSockets;
+﻿using Api.WebSockets;
 using Fleck;
 using WebSocketBoilerplate;
 

@@ -1,7 +1,6 @@
 ﻿using WebSocketBoilerplate;
-using System;
 
-namespace Api.EventHandlers.Dtos;
+namespace DataAccess.ModelDtos;
 
 public class PlayerAnswerDto : BaseDto
 {

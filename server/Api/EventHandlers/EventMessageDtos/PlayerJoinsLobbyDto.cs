@@ -1,7 +1,6 @@
 ﻿using WebSocketBoilerplate;
-using System.Collections.Generic;
 
-namespace Api.EventHandlers.Dtos
+namespace Api.EventHandlers.EventMessageDtos
 {
     // This DTO is sent by the client when a player wants to join a topic.
     public class PlayerJoinsLobbyDto : BaseDto

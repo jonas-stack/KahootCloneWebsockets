@@ -1,8 +1,6 @@
 ﻿using WebSocketBoilerplate;
-using System;
-using System.Collections.Generic;
 
-namespace Api.EventHandlers.Dtos
+namespace Api.EventHandlers.EventMessageDtos
 {
     // DTO for broadcasting a question to clients.
     public class BroadcastQuestionDto : BaseDto

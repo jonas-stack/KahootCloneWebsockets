@@ -1,8 +1,8 @@
-﻿namespace Api.EventHandlers.Utility;
+﻿using DataAccess.Models;
+
+namespace DataAccess.ModelDtos.Utility;
 
 // DtoMapper.cs
-using DataAccess.Models;
-using Api.EventHandlers.Dtos;
 
 public static class DtoMapper
 {

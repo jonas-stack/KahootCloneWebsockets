@@ -1,7 +1,7 @@
 ﻿using System.Net;
 using System.Net.Sockets;
 using System.Web;
-using Api.EventHandlers.Dtos;
+using Api.EventHandlers.EventMessageDtos;
 using Fleck;
 using WebSocketBoilerplate;
 

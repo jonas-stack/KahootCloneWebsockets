@@ -1,6 +1,6 @@
 ﻿using WebSocketBoilerplate;
 
-namespace Api.EventHandlers.Dtos;
+namespace Api.EventHandlers.EventMessageDtos;
 
 public class MemberHasLeftDto : BaseDto
 {

@@ -1,12 +1,13 @@
-﻿using Api.EventHandlers.Dtos;
-using Api.WebSockets;
+﻿using Api.WebSockets;
 using Fleck;
 using WebSocketBoilerplate;
 using DataAccess.Models;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Threading.Tasks;
-using Api.EventHandlers.Utility;
+using Api.EventHandlers.EventMessageDtos;
+using DataAccess.ModelDtos;
+using DataAccess.ModelDtos.Utility;
 
 namespace Api.EventHandlers
 {

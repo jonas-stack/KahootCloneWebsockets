@@ -1,6 +1,6 @@
 ﻿using System.Collections.Concurrent;
 using System.Text.Json;
-using Api.EventHandlers.Dtos;
+using Api.EventHandlers.EventMessageDtos;
 using Fleck;
 using WebSocketBoilerplate;
 

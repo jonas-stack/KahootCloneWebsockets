@@ -1,7 +1,6 @@
 ﻿using WebSocketBoilerplate;
-using System.Collections.Generic;
 
-namespace Api.EventHandlers.Dtos;
+namespace DataAccess.ModelDtos;
 
 public class QuestionDto : BaseDto
 {
