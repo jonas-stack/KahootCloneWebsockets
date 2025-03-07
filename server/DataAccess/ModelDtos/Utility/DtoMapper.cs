@@ -1,9 +1,6 @@
 ﻿using DataAccess.Models;
 
 namespace DataAccess.ModelDtos.Utility;
-
-// DtoMapper.cs
-
 public static class DtoMapper
 {
     public static Game ToEntity(this GameDto dto)
