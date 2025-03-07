@@ -5,9 +5,11 @@ namespace DataAccess.Models;
 
 public partial class Game
 {
-    public string Id { get; set; } = null!;
+    public Guid Id { get; set; }
 
     public string Name { get; set; } = null!;
+
+    public string CreatedBy { get; set; } = null!;
 
     public virtual ICollection<Player> Players { get; set; } = new List<Player>();
 

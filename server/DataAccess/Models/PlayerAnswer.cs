@@ -5,11 +5,11 @@ namespace DataAccess.Models;
 
 public partial class PlayerAnswer
 {
-    public string PlayerId { get; set; } = null!;
+    public Guid PlayerId { get; set; }
 
-    public string QuestionId { get; set; } = null!;
+    public Guid QuestionId { get; set; }
 
-    public string? SelectedOptionId { get; set; }
+    public Guid? SelectedOptionId { get; set; }
 
     public DateTime? AnswerTimestamp { get; set; }
 

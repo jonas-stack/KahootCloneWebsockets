@@ -5,9 +5,9 @@ namespace DataAccess.Models;
 
 public partial class Player
 {
-    public string Id { get; set; } = null!;
+    public Guid Id { get; set; }
 
-    public string? GameId { get; set; }
+    public Guid? GameId { get; set; }
 
     public string Nickname { get; set; } = null!;
 

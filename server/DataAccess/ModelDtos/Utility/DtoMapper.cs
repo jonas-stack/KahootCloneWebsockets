@@ -12,6 +12,7 @@ public static class DtoMapper
         {
             Id = dto.Id,
             Name = dto.Name,
+            CreatedBy = dto.CreatedBy.ToString(),
             // Map other properties as needed
         };
     }

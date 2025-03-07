@@ -33,13 +33,18 @@ public partial class KahootDbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.HasPostgresExtension("kahoot", "pgcrypto");
+
         modelBuilder.Entity<Game>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("game_pkey");
 
             entity.ToTable("game", "kahoot");
 
-            entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.Id)
+                .HasDefaultValueSql("gen_random_uuid()")
+                .HasColumnName("id");
+            entity.Property(e => e.CreatedBy).HasColumnName("created_by");
             entity.Property(e => e.Name).HasColumnName("name");
         });
 
@@ -51,7 +56,9 @@ public partial class KahootDbContext : DbContext
 
             entity.HasIndex(e => new { e.GameId, e.Nickname }, "unique_nickname_per_game").IsUnique();
 
-            entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.Id)
+                .HasDefaultValueSql("gen_random_uuid()")
+                .HasColumnName("id");
             entity.Property(e => e.GameId).HasColumnName("game_id");
             entity.Property(e => e.Nickname).HasColumnName("nickname");
 
@@ -92,7 +99,9 @@ public partial class KahootDbContext : DbContext
 
             entity.ToTable("question", "kahoot");
 
-            entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.Id)
+                .HasDefaultValueSql("gen_random_uuid()")
+                .HasColumnName("id");
             entity.Property(e => e.Answered)
                 .HasDefaultValue(false)
                 .HasColumnName("answered");
@@ -110,7 +119,9 @@ public partial class KahootDbContext : DbContext
 
             entity.ToTable("question_option", "kahoot");
 
-            entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.Id)
+                .HasDefaultValueSql("gen_random_uuid()")
+                .HasColumnName("id");
             entity.Property(e => e.IsCorrect).HasColumnName("is_correct");
             entity.Property(e => e.OptionText).HasColumnName("option_text");
             entity.Property(e => e.QuestionId).HasColumnName("question_id");
@@ -126,7 +137,9 @@ public partial class KahootDbContext : DbContext
 
             entity.ToTable("round_result", "kahoot");
 
-            entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.Id)
+                .HasDefaultValueSql("gen_random_uuid()")
+                .HasColumnName("id");
             entity.Property(e => e.GameId).HasColumnName("game_id");
             entity.Property(e => e.PlayerId).HasColumnName("player_id");
             entity.Property(e => e.RoundNumber).HasColumnName("round_number");

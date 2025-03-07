@@ -5,13 +5,13 @@ namespace DataAccess.Models;
 
 public partial class RoundResult
 {
-    public string Id { get; set; } = null!;
+    public Guid Id { get; set; }
 
-    public string? GameId { get; set; }
+    public Guid? GameId { get; set; }
 
     public int RoundNumber { get; set; }
 
-    public string? PlayerId { get; set; }
+    public Guid? PlayerId { get; set; }
 
     public int Score { get; set; }
 

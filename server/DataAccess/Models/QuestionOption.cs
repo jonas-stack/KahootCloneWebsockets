@@ -5,9 +5,9 @@ namespace DataAccess.Models;
 
 public partial class QuestionOption
 {
-    public string Id { get; set; } = null!;
+    public Guid Id { get; set; }
 
-    public string? QuestionId { get; set; }
+    public Guid? QuestionId { get; set; }
 
     public string OptionText { get; set; } = null!;
 
