@@ -26,34 +26,39 @@ namespace Api.EventHandlers
                 socket.SendDto(new ServerSendsErrorMessageDto
                 {
                     Error = "Invalid join lobby data.",
-                    requestId = dto?.requestId // Provides existing requestId or null if not available.
+                    requestId = dto?.requestId
                 });
                 return;
             }
 
-            _logger.LogDebug($"Player '{dto.PlayerId}' with nickname '{dto.Nickname}' is attempting to join the lobby.");
+            _logger.LogDebug("Player '{PlayerId}' with nickname '{Nickname}' is attempting to join topic '{Topic}'.", dto.PlayerId, dto.Nickname, dto.Topic);
 
-            // Add the player to the "lobby" topic.
-            await _connectionManager.AddToTopic("lobby", dto.PlayerId);
-            _logger.LogDebug($"Player '{dto.PlayerId}' added to 'lobby' topic.");
+            // Add the player to the specified topic.
+            await _connectionManager.AddToTopic(dto.Topic, dto.PlayerId);
+            _logger.LogDebug("Player '{PlayerId}' added to topic '{Topic}'.", dto.PlayerId, dto.Topic);
 
-            // Broadcast to all clients in the lobby that a new member has joined.
-            await _connectionManager.BroadcastToTopic("lobby", new MemberHasJoinedDto
+            // Retrieve the current list of members in that topic.
+            var members = await _connectionManager.GetMembersFromTopicId(dto.Topic);
+            _logger.LogDebug("Current members in '{Topic}': {Members}", dto.Topic, string.Join(", ", members));
+
+            // Broadcast to all clients in the specified topic that a new member has joined.
+            var joinMessage = new MemberHasJoinedDto
             {
                 MemberId = dto.PlayerId,
                 Nickname = dto.Nickname,
                 requestId = dto.requestId
-            });
-            _logger.LogDebug($"Broadcasted join message for player '{dto.PlayerId}'.");
+            };
+            await _connectionManager.BroadcastToTopic(dto.Topic, joinMessage);
+            _logger.LogDebug("Broadcasted join message for player '{PlayerId}' in topic '{Topic}'.", dto.PlayerId, dto.Topic);
 
             // Send a confirmation back to the joining client.
             socket.SendDto(new ServerConfirmsPlayerJoinDto
             {
                 PlayerId = dto.PlayerId,
-                Message = "Successfully joined the lobby.",
+                Message = "Successfully joined the topic.",
                 requestId = dto.requestId
             });
-            _logger.LogDebug($"Sent join confirmation to player '{dto.PlayerId}'.");
+            _logger.LogDebug("Sent join confirmation to player '{PlayerId}'.", dto.PlayerId);
         }
     }
 }

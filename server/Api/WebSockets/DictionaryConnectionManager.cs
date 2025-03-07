@@ -60,8 +60,14 @@ public class DictionaryConnectionManager(ILogger<DictionaryConnectionManager> lo
                 }
             });
 
+        Console.WriteLine($"Client '{memberId}' joined topic '{topic}'.");
+
+        // If you have logging configured, you can also log here.
+        logger.LogDebug("Client '{MemberId}' joined topic '{Topic}'.", memberId, topic);
+
         await LogCurrentState();
     }
+
 
     public Task RemoveFromTopic(string topic, string memberId)
     {
