@@ -1,10 +1,10 @@
 using System.Reflection;
 using Api.WebSockets;
 using Api.EventHandlers;
-using Api.Services;
 using DataAccess.ModelDtos;
 using DataAccess.Models;
 using Microsoft.EntityFrameworkCore;
+using Service;
 using WebSocketBoilerplate;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -13,7 +13,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddSingleton<IConnectionManager, DictionaryConnectionManager>();
 builder.Services.AddSingleton<CustomWebSocketServer>();
 builder.Services.AddSingleton<IEventHandlersService, EventHandlersService>();
-builder.Services.AddScoped<QuestionBroadcastService>();
+builder.Services.AddScoped<EventHandlerServices>();
 
 // ✅ Scan all assemblies (API + DataAccess) to detect all event handlers.
 var executingAssembly = Assembly.GetExecutingAssembly();

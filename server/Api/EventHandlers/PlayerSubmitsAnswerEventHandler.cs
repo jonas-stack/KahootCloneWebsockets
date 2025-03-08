@@ -3,9 +3,6 @@ using Api.WebSockets;
 using DataAccess.Models;
 using Fleck;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
-using System;
-using System.Threading.Tasks;
 using WebSocketBoilerplate;
 
 namespace Api.EventHandlers
@@ -25,7 +22,7 @@ namespace Api.EventHandlers
 
         public override async Task Handle(PlayerSubmitsAnswerDto dto, IWebSocketConnection socket)
         {
-            if (dto == null || string.IsNullOrEmpty(dto.PlayerId) || dto.QuestionId == Guid.Empty)
+            if (!Guid.TryParse(dto.PlayerId, out Guid playerId) || dto.QuestionId == Guid.Empty)
             {
                 socket.SendDto(new ServerSendsErrorMessageDto
                 {
@@ -37,10 +34,9 @@ namespace Api.EventHandlers
 
             _logger.LogDebug("Player {PlayerId} submitted an answer for question {QuestionId}", dto.PlayerId, dto.QuestionId);
 
-            // Create and save the answer.
             var playerAnswer = new PlayerAnswer
             {
-                PlayerId = Guid.Parse(dto.PlayerId),
+                PlayerId = playerId,
                 QuestionId = dto.QuestionId,
                 SelectedOptionId = dto.SelectedOptionId,
                 AnswerTimestamp = DateTime.UtcNow
@@ -48,9 +44,7 @@ namespace Api.EventHandlers
 
             _dbContext.PlayerAnswers.Add(playerAnswer);
             await _dbContext.SaveChangesAsync();
-            _logger.LogDebug("Player answer saved for question {QuestionId}", dto.QuestionId);
 
-            // Optionally, send a confirmation back.
             socket.SendDto(new ServerConfirmsPlayerJoinDto
             {
                 PlayerId = dto.PlayerId,

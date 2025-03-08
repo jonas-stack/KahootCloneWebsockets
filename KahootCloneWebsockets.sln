@@ -14,6 +14,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		compose.yaml = compose.yaml
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Service", "server\Service\Service.csproj", "{78C24DB9-D23A-4611-9949-48D2ED43C9C1}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -31,9 +33,14 @@ Global
 		{F08B1E97-78B8-4264-98DC-EBE03B849A01}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F08B1E97-78B8-4264-98DC-EBE03B849A01}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F08B1E97-78B8-4264-98DC-EBE03B849A01}.Release|Any CPU.Build.0 = Release|Any CPU
+		{78C24DB9-D23A-4611-9949-48D2ED43C9C1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{78C24DB9-D23A-4611-9949-48D2ED43C9C1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{78C24DB9-D23A-4611-9949-48D2ED43C9C1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{78C24DB9-D23A-4611-9949-48D2ED43C9C1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{98779403-AA57-40B0-B915-3459A4F8C7CC} = {94DCB5E0-8E29-41C7-ACFA-7B106CFC6C88}
 		{F08B1E97-78B8-4264-98DC-EBE03B849A01} = {94DCB5E0-8E29-41C7-ACFA-7B106CFC6C88}
+		{78C24DB9-D23A-4611-9949-48D2ED43C9C1} = {94DCB5E0-8E29-41C7-ACFA-7B106CFC6C88}
 	EndGlobalSection
 EndGlobal

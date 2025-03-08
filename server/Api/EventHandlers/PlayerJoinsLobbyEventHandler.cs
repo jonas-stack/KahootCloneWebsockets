@@ -1,8 +1,6 @@
 ﻿using Api.WebSockets;
 using Fleck;
 using WebSocketBoilerplate;
-using Microsoft.Extensions.Logging;
-using System.Threading.Tasks;
 using Api.EventHandlers.EventMessageDtos;
 
 namespace Api.EventHandlers

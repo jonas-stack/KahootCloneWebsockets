@@ -1,13 +1,15 @@
 ﻿using Api.EventHandlers.EventMessageDtos;
 using Api.WebSockets;
+using DataAccess.ModelDtos;
 using DataAccess.Models;
 using Fleck;
 using Microsoft.EntityFrameworkCore;
 using WebSocketBoilerplate;
 
+
 namespace Api.EventHandlers;
 
-public class BroadcastQuestionEventHandler : BaseEventHandler<BroadcastQuestionDto>
+public class BroadcastQuestionEventHandler : BaseEventHandler<AdminStartsNextRoundDto>
 {
     private readonly IConnectionManager _connectionManager;
     private readonly KahootDbContext _dbContext;
@@ -21,9 +23,9 @@ public class BroadcastQuestionEventHandler : BaseEventHandler<BroadcastQuestionD
         _dbContext = dbContext;
     }
 
-    public override async Task Handle(BroadcastQuestionDto dto, IWebSocketConnection socket)
+    public override async Task Handle(AdminStartsNextRoundDto dto, IWebSocketConnection socket)
     {
-        if (dto == null || string.IsNullOrEmpty(dto.Topic))
+        if (dto == null || string.IsNullOrEmpty(dto.GameId))
         {
             socket.SendDto(new ServerSendsErrorMessageDto
             {
@@ -33,22 +35,26 @@ public class BroadcastQuestionEventHandler : BaseEventHandler<BroadcastQuestionD
             return;
         }
 
-        // Fetch a random unanswered question from the database
+        _logger.LogDebug("Admin is starting round {RoundNumber} for game {GameId}", dto.RoundNumber, dto.GameId);
+
+        // Fetch a new unanswered question from the database
         var question = await _dbContext.Questions
-            .Where(q => q.GameId.ToString() == dto.Topic && !q.Answered)
+            .Where(q => q.GameId.ToString() == dto.GameId && !q.Answered)
             .OrderBy(q => Guid.NewGuid()) // Random selection
-            .Select(q => new BroadcastQuestionDto
+            .Select(q => new RoundStartedDto
             {
-                Id = q.Id,
-                QuestionText = q.QuestionText,
-                QuestionOptions = q.QuestionOptions.Select(opt => new QuestionOptionDto
+                RoundNumber = dto.RoundNumber,
+                Question = new QuestionDto
                 {
-                    Id = opt.Id,
-                    OptionText = opt.OptionText,
-                    IsCorrect = opt.IsCorrect
-                }).ToList(),
-                TimeLimitSeconds = 30, // Set a default time limit
-                Topic = dto.Topic
+                    Id = q.Id,
+                    QuestionText = q.QuestionText,
+                    QuestionOptions = q.QuestionOptions.Select(opt => new QuestionOptionDto
+                    {
+                        Id = opt.Id,
+                        OptionText = opt.OptionText,
+                        IsCorrect = opt.IsCorrect
+                    }).ToList()
+                }
             }).FirstOrDefaultAsync();
 
         if (question == null)
@@ -61,22 +67,8 @@ public class BroadcastQuestionEventHandler : BaseEventHandler<BroadcastQuestionD
             return;
         }
 
-        _logger.LogDebug("Broadcasting question {QuestionId} to topic '{Topic}'", question.Id, dto.Topic);
-        await _connectionManager.BroadcastToTopic(dto.Topic, question);
-
-        _logger.LogDebug("Question {QuestionId} broadcasted", question.Id);
-
-        // Wait for the question time limit.
-        await Task.Delay(question.TimeLimitSeconds * 1000);
-
-        // Send "Time Over" message
-        var timeOverDto = new QuestionTimeOverDto
-        {
-            QuestionId = question.Id,
-            Message = "Time is up for answering the question."
-        };
-        timeOverDto.requestId = dto.requestId;
-        await _connectionManager.BroadcastToTopic(dto.Topic, timeOverDto);
-        _logger.LogDebug("Time-over message broadcasted for question {QuestionId}", question.Id);
+        // Broadcast the new round to all players
+        await _connectionManager.BroadcastToTopic(dto.GameId, question);
+        _logger.LogDebug("Round {RoundNumber} started for game {GameId}", dto.RoundNumber, dto.GameId);
     }
 }
