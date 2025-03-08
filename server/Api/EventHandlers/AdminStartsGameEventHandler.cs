@@ -72,7 +72,7 @@ namespace Api.EventHandlers
             _logger.LogDebug("Game {GameName} retrieved, broadcasting start...", gameEntity.Name);
 
             //Convert GameEntity to DTO
-            var gameDto = new GameDto(gameEntity); // ✅ Let the constructor handle mapping
+            var gameDto = new GameDto(gameEntity); //Let the constructor handle mapping
 
             //Broadcast game start
             await _connectionManager.BroadcastToTopic("lobby", gameDto);

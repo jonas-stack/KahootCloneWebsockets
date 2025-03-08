@@ -21,41 +21,43 @@ namespace Api.EventHandlers
         public override async Task Handle(PlayerJoinsLobbyDto dto, IWebSocketConnection socket)
         {
             // Validate the incoming DTO.
-            if (dto == null || string.IsNullOrEmpty(dto.PlayerId))
+            if (dto == null || string.IsNullOrEmpty(dto.PlayerId) || string.IsNullOrEmpty(dto.GameId))
             {
                 socket.SendDto(new ServerSendsErrorMessageDto
                 {
-                    Error = "Invalid join lobby data.",
+                    Error = "Invalid game selection. A valid GameId is required.",
                     requestId = dto?.requestId
                 });
                 return;
             }
 
-            _logger.LogDebug("Player '{PlayerId}' with nickname '{Nickname}' is attempting to join topic '{Topic}'.", dto.PlayerId, dto.Nickname, dto.Topic);
+            string topic = dto.Topic; // GameId now acts as the topic
 
-            // Add the player to the specified topic.
-            await _connectionManager.AddToTopic(dto.Topic, dto.PlayerId);
-            _logger.LogDebug("Player '{PlayerId}' added to topic '{Topic}'.", dto.PlayerId, dto.Topic);
+            _logger.LogDebug("Player '{PlayerId}' ({Nickname}) is attempting to join game '{GameId}'.", dto.PlayerId, dto.Nickname, topic);
 
-            // Retrieve the current list of members in that topic.
-            var members = await _connectionManager.GetMembersFromTopicId(dto.Topic);
-            _logger.LogDebug("Current members in '{Topic}': {Members}", dto.Topic, string.Join(", ", members));
+            // Add the player to the game topic
+            await _connectionManager.AddToTopic(topic, dto.PlayerId);
+            _logger.LogDebug("Player '{PlayerId}' added to game '{GameId}'.", dto.PlayerId, topic);
 
-            // Broadcast to all clients in the specified topic that a new member has joined.
+            // Retrieve and log the current members in the game
+            var members = await _connectionManager.GetMembersFromTopicId(topic);
+            _logger.LogDebug("Current players in game '{GameId}': {Members}", topic, string.Join(", ", members));
+
+            // Broadcast to all players in the game that a new member has joined
             var joinMessage = new MemberHasJoinedDto
             {
                 MemberId = dto.PlayerId,
                 Nickname = dto.Nickname,
                 requestId = dto.requestId
             };
-            await _connectionManager.BroadcastToTopic(dto.Topic, joinMessage);
-            _logger.LogDebug("Broadcasted join message for player '{PlayerId}' in topic '{Topic}'.", dto.PlayerId, dto.Topic);
+            await _connectionManager.BroadcastToTopic(topic, joinMessage);
+            _logger.LogDebug("Broadcasted join message for player '{PlayerId}' in game '{GameId}'.", dto.PlayerId, topic);
 
-            // Send a confirmation back to the joining client.
+            // Send a confirmation back to the joining client
             socket.SendDto(new ServerConfirmsPlayerJoinDto
             {
                 PlayerId = dto.PlayerId,
-                Message = "Successfully joined the topic.",
+                Message = $"Successfully joined game {topic}.",
                 requestId = dto.requestId
             });
             _logger.LogDebug("Sent join confirmation to player '{PlayerId}'.", dto.PlayerId);

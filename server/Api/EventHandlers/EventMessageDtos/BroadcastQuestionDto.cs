@@ -48,12 +48,14 @@ namespace Api.EventHandlers.EventMessageDtos
         public PlayerJoinsLobbyDto()
         {
             eventType = "PlayerJoinsLobby";
-            Topic = "lobby"; // default topic
         }
+
         public required string PlayerId { get; set; }
         public required string Nickname { get; set; }
-        public string Topic { get; set; }
+        public required string GameId { get; set; }  
+        public string Topic => GameId;  
     }
+
 
     // Notifies all clients that a new member has joined.
     public class MemberHasJoinedDto : BaseDto
