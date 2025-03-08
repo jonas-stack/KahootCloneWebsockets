@@ -1,38 +1,39 @@
 ﻿using WebSocketBoilerplate;
 using System;
 using System.Collections.Generic;
+using Api.WebSockets;
 using DataAccess.ModelDtos;
 
 namespace Api.EventHandlers.EventMessageDtos
 {
-    public class AdminStartsGameDto : BaseDto
+    public class AdminStartsGameDto : CustomBaseDto
     {
         public AdminStartsGameDto() => eventType = "AdminStartsGame";
         public required string GameId { get; set; }
     }
 
-    public class AdminStartsNextRoundDto : BaseDto
+    public class AdminStartsNextRoundDto : CustomBaseDto
     {
         public AdminStartsNextRoundDto() => eventType = "AdminStartsNextRound";
         public required string GameId { get; set; }
         public int RoundNumber { get; set; }
     }
     
-    public class GameStartedDto : BaseDto
+    public class GameStartedDto : CustomBaseDto
     {
         public GameStartedDto() => eventType = "GameStarted";
         public string GameId { get; set; } = string.Empty;
         public string Message { get; set; } = "The game has started!";
     }
 
-    public class RoundStartedDto : BaseDto
+    public class RoundStartedDto : CustomBaseDto
     {
         public RoundStartedDto() => eventType = "RoundStarted";
         public int RoundNumber { get; set; }
         public required QuestionDto Question { get; set; } // ✅ Now uses the correct DTO from DataAccess.ModelDtos
     }
     
-    public class PlayerSubmitsAnswerDto : BaseDto
+    public class PlayerSubmitsAnswerDto : CustomBaseDto
     {
         public PlayerSubmitsAnswerDto()
         {
@@ -44,7 +45,7 @@ namespace Api.EventHandlers.EventMessageDtos
         public Guid? SelectedOptionId { get; set; } // The selected answer option (nullable if no selection)
     }
     
-    public class ServerConfirmsPlayerJoinDto : BaseDto
+    public class ServerConfirmsPlayerJoinDto : CustomBaseDto
     {
         public ServerConfirmsPlayerJoinDto()
         {
@@ -55,7 +56,7 @@ namespace Api.EventHandlers.EventMessageDtos
         public required string Message { get; set; } // Confirmation message
     }
     
-    public class GameProgressionDto : BaseDto
+    public class GameProgressionDto : CustomBaseDto
     {
         public GameProgressionDto()
         {
@@ -68,7 +69,7 @@ namespace Api.EventHandlers.EventMessageDtos
         public required string Message { get; set; } // Status message (e.g., "Round 2 has started", "Game Over")
     }
     
-    public class MemberHasJoinedDto : BaseDto
+    public class MemberHasJoinedDto : CustomBaseDto
     {
         public MemberHasJoinedDto()
         {
@@ -79,7 +80,7 @@ namespace Api.EventHandlers.EventMessageDtos
         public required string Nickname { get; set; } // The nickname of the player
     }
     
-    public class PlayerJoinsLobbyDto : BaseDto
+    public class PlayerJoinsLobbyDto : CustomBaseDto
     {
         public PlayerJoinsLobbyDto()
         {
@@ -92,7 +93,7 @@ namespace Api.EventHandlers.EventMessageDtos
         public string Topic => GameId;  // GameId is used as the WebSocket topic
     }
     
-    public class MemberHasLeftDto : BaseDto
+    public class MemberHasLeftDto : CustomBaseDto
     {
         public MemberHasLeftDto()
         {
@@ -103,7 +104,7 @@ namespace Api.EventHandlers.EventMessageDtos
         public string? GameId { get; set; }
     }
 
-    public class ServerSendsErrorMessageDto : BaseDto
+    public class ServerSendsErrorMessageDto : CustomBaseDto
     {
         public ServerSendsErrorMessageDto() => eventType = "ServerSendsErrorMessage";
         public required string Error { get; set; }

@@ -152,18 +152,49 @@ public class DictionaryConnectionManager(ILogger<DictionaryConnectionManager> lo
         MemberTopics.TryRemove(clientId, out _);
     }
 
-    public async Task BroadcastToTopic<T>(string topic, T message) where T : BaseDto
+    public async Task BroadcastToTopic<T>(string topic, T message) where T : CustomBaseDto
     {
-        await LogCurrentState();
-        if (!TopicMembers.TryGetValue(topic, out var members))
+        if (!TopicMembers.TryGetValue(topic, out var members) || members.Count == 0)
         {
-            logger.LogWarning($"No topic found: {topic}");
+            logger.LogWarning("⚠️ No active clients in Topic {Topic}. Message not sent.", topic);
             return;
         }
 
-        foreach (var memberId in members.ToList()) await BroadcastToMember(topic, memberId, message);
+        logger.LogInformation("\n=============================\n" +
+                              "📢 Broadcast Message\n" +
+                              "👤 Sender: {SenderId}\n" +
+                              "📥 Received by: {Clients}\n" +
+                              "📍 Topic: {Topic}\n" +
+                              "=============================", 
+            message.SenderId, string.Join(", ", members), topic);
+
+        foreach (var recipientId in members)
+        {
+            message.RecipientId = recipientId;
+            await SendToClient(recipientId, message);
+        }
+    }
+    
+    private async Task SendToClient<T>(string recipientId, T message) where T : CustomBaseDto
+    {
+        if (!ConnectionIdToSocket.TryGetValue(recipientId, out var socket))
+        {
+            logger.LogWarning("❌ No socket found for recipient: {RecipientId}", recipientId);
+            return;
+        }
+
+        if (!socket.IsAvailable)
+        {
+            logger.LogWarning("❌ Socket unavailable for {RecipientId}. Removing from topic.", recipientId);
+            await RemoveFromTopic(message.Topic, recipientId);
+            return;
+        }
+
+        logger.LogInformation("📩 Sending message from {SenderId} to {RecipientId}", message.SenderId, recipientId);
+        socket.SendDto(message);
     }
 
+    
     private async Task BroadcastToMember<T>(string topic, string memberId, T message) where T : BaseDto
     {
         if (!ConnectionIdToSocket.TryGetValue(memberId, out var socket))

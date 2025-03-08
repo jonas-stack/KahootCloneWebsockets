@@ -16,13 +16,14 @@ namespace Service
             _logger = logger;
         }
 
-        public async Task<List<QuestionDto>> GetQuestionsForGameAsync(Guid gameId)
+        public async Task<QuestionDto?> GetUnansweredQuestionAsync(Guid gameId)
         {
-            _logger.LogDebug("Fetching questions for game {GameId}", gameId);
+            _logger.LogDebug("Fetching unanswered question for game {GameId}", gameId);
 
             return await _dbContext.Questions
                 .Include(q => q.QuestionOptions)
-                .Where(q => q.GameId == gameId)
+                .Where(q => q.GameId == gameId && !q.Answered)
+                .OrderBy(q => Guid.NewGuid()) // Random selection
                 .Select(q => new QuestionDto
                 {
                     Id = q.Id,
@@ -34,7 +35,8 @@ namespace Service
                         IsCorrect = opt.IsCorrect
                     }).ToList()
                 })
-                .ToListAsync();
+                .FirstOrDefaultAsync();
         }
+
     }
 }

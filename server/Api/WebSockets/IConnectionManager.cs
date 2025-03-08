@@ -17,5 +17,5 @@ public interface IConnectionManager
     Task<string> GetClientIdFromSocketId(string socketId);
     Task OnOpen(IWebSocketConnection socket, string clientId);
     Task OnClose(IWebSocketConnection socket, string clientId);
-    Task BroadcastToTopic<T>(string topic, T message) where T : BaseDto;
+    Task BroadcastToTopic<T>(string topic, T message) where T : CustomBaseDto;
 }
