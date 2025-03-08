@@ -1,8 +1,6 @@
-﻿using WebSocketBoilerplate;
+﻿namespace DataAccess.ModelDtos;
 
-namespace DataAccess.ModelDtos;
-
-public class RoundResultDto : BaseDto
+public class RoundResultDto
 {
     public required string Id { get; set; }
     public string? GameId { get; set; }

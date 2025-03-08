@@ -1,8 +1,6 @@
-﻿using WebSocketBoilerplate;
+﻿namespace DataAccess.ModelDtos;
 
-namespace DataAccess.ModelDtos;
-
-public class PlayerAnswerDto : BaseDto
+public class PlayerAnswerDto 
 {
     public required string PlayerId { get; set; }
     public required string QuestionId { get; set; }

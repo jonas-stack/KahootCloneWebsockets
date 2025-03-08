@@ -2,6 +2,7 @@ using System.Reflection;
 using Api.WebSockets;
 using Api.EventHandlers;
 using Api.Services;
+using DataAccess.ModelDtos;
 using DataAccess.Models;
 using Microsoft.EntityFrameworkCore;
 using WebSocketBoilerplate;
@@ -14,11 +15,17 @@ builder.Services.AddSingleton<CustomWebSocketServer>();
 builder.Services.AddSingleton<IEventHandlersService, EventHandlersService>();
 builder.Services.AddScoped<QuestionBroadcastService>();
 
-// Scan the currently executing assembly (typically your API project) for event handlers and DTO types.
-builder.Services.InjectEventHandlers(Assembly.GetExecutingAssembly());
+// ✅ Scan all assemblies (API + DataAccess) to detect all event handlers.
+var executingAssembly = Assembly.GetExecutingAssembly();
 
-// Load and scan the DataAccess assembly (where your DTOs like GameDto are defined) for event handlers and DTO types.
-builder.Services.InjectEventHandlers(Assembly.Load("DataAccess"));
+Console.WriteLine("📌 Scanning Assemblies for Event Handlers:");
+foreach (var asm in AppDomain.CurrentDomain.GetAssemblies())
+{
+    Console.WriteLine($"- {asm.FullName}");
+}
+
+builder.Services.InjectEventHandlers(executingAssembly);
+
 
 // Register DbContext.
 builder.Services.AddDbContext<KahootDbContext>(options =>
@@ -28,7 +35,26 @@ builder.Services.AddLogging();
 
 var app = builder.Build();
 
+// ✅ Use WebSockets
 app.UseWebSockets();
+
+// ✅ Debugging: Print all registered event handlers before starting WebSocket server
+var eventHandlersService = app.Services.GetRequiredService<IEventHandlersService>();
+
+if (eventHandlersService.EventHandlers.Count == 0)
+{
+    Console.WriteLine("🚨 No WebSocket Event Handlers were registered! Check `InjectEventHandlers()`.");
+}
+else
+{
+    Console.WriteLine("📌 Registered WebSocket Event Handlers:");
+    foreach (var handler in eventHandlersService.EventHandlers)
+    {
+        Console.WriteLine($"- {handler.Name}");
+    }
+}
+
+// ✅ Start WebSocket Server
 var webSocketServer = app.Services.GetRequiredService<CustomWebSocketServer>();
 webSocketServer.Start(app);
 

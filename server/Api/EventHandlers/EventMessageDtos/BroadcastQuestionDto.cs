@@ -109,6 +109,16 @@ namespace Api.EventHandlers.EventMessageDtos
         public string Message { get; set; }
     }
     
+    public class AdminStartsGameDto : BaseDto
+    {
+        // The BaseDto constructor automatically sets the eventType to "AdminStartsGame" (by stripping "Dto" from the class name).
+        public AdminStartsGameDto()
+        {
+            eventType = "AdminStartsGame";
+        }
+        public required string Name { get; set; }
+    }
+    
     // Generic error message.
      public class ServerSendsErrorMessageDto : BaseDto
      {
