@@ -2,11 +2,22 @@
 
 public class RoundResultDto
 {
-    public required string Id { get; set; }
-    public string? GameId { get; set; }
+    public Guid Id { get; set; } // ✅ Removed "required" to allow proper initialization
+    public Guid? GameId { get; set; }
     public int RoundNumber { get; set; }
-    public string? PlayerId { get; set; }
+    public Guid? PlayerId { get; set; }
     public int Score { get; set; }
-    public GameDto? Game { get; set; }
-    public PlayerDto? Player { get; set; }
+
+    // ✅ Constructor for mapping from entity
+    public RoundResultDto(DataAccess.Models.RoundResult result)
+    {
+        Id = result.Id;
+        GameId = result.GameId;
+        PlayerId = result.PlayerId;
+        RoundNumber = result.RoundNumber;
+        Score = result.Score;
+    }
+
+    // ✅ Parameterless constructor for serialization
+    public RoundResultDto() { }
 }

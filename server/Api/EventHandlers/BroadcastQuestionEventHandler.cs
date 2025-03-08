@@ -1,51 +1,82 @@
-﻿using Api.WebSockets;
+﻿using Api.EventHandlers.EventMessageDtos;
+using Api.WebSockets;
+using DataAccess.Models;
 using Fleck;
-using Microsoft.Extensions.Logging;
-using System.Threading.Tasks;
-using Api.EventHandlers.EventMessageDtos;
+using Microsoft.EntityFrameworkCore;
 using WebSocketBoilerplate;
 
-namespace Api.EventHandlers
+namespace Api.EventHandlers;
+
+public class BroadcastQuestionEventHandler : BaseEventHandler<BroadcastQuestionDto>
 {
-    public class BroadcastQuestionEventHandler : BaseEventHandler<BroadcastQuestionDto>
+    private readonly IConnectionManager _connectionManager;
+    private readonly KahootDbContext _dbContext;
+    private readonly ILogger<BroadcastQuestionEventHandler> _logger;
+
+    public BroadcastQuestionEventHandler(IConnectionManager connectionManager,
+        ILogger<BroadcastQuestionEventHandler> logger, KahootDbContext dbContext)
     {
-        private readonly IConnectionManager _connectionManager;
-        private readonly ILogger<BroadcastQuestionEventHandler> _logger;
+        _connectionManager = connectionManager;
+        _logger = logger;
+        _dbContext = dbContext;
+    }
 
-        public BroadcastQuestionEventHandler(IConnectionManager connectionManager, ILogger<BroadcastQuestionEventHandler> logger)
+    public override async Task Handle(BroadcastQuestionDto dto, IWebSocketConnection socket)
+    {
+        if (dto == null || string.IsNullOrEmpty(dto.Topic))
         {
-            _connectionManager = connectionManager;
-            _logger = logger;
+            socket.SendDto(new ServerSendsErrorMessageDto
+            {
+                Error = "Invalid game ID.",
+                requestId = dto?.requestId
+            });
+            return;
         }
 
-        public override async Task Handle(BroadcastQuestionDto dto, IWebSocketConnection socket)
-        {
-            if (dto == null || string.IsNullOrEmpty(dto.QuestionText) || dto.QuestionOptions == null || dto.QuestionOptions.Count == 0)
+        // Fetch a random unanswered question from the database
+        var question = await _dbContext.Questions
+            .Where(q => q.GameId.ToString() == dto.Topic && !q.Answered)
+            .OrderBy(q => Guid.NewGuid()) // Random selection
+            .Select(q => new BroadcastQuestionDto
             {
-                socket.SendDto(new ServerSendsErrorMessageDto
+                Id = q.Id,
+                QuestionText = q.QuestionText,
+                QuestionOptions = q.QuestionOptions.Select(opt => new QuestionOptionDto
                 {
-                    Error = "Invalid question data.",
-                    requestId = dto?.requestId
-                });
-                return;
-            }
+                    Id = opt.Id,
+                    OptionText = opt.OptionText,
+                    IsCorrect = opt.IsCorrect
+                }).ToList(),
+                TimeLimitSeconds = 30, // Set a default time limit
+                Topic = dto.Topic
+            }).FirstOrDefaultAsync();
 
-            string topic = string.IsNullOrEmpty(dto.Topic) ? "lobby" : dto.Topic;
-            _logger.LogDebug("Broadcasting question {QuestionId} to topic '{Topic}'", dto.Id, topic);
-            await _connectionManager.BroadcastToTopic(topic, dto);
-            _logger.LogDebug("Question {QuestionId} broadcasted", dto.Id);
-
-            // Wait for the question time limit.
-            await Task.Delay(dto.TimeLimitSeconds * 1000);
-
-            var timeOverDto = new QuestionTimeOverDto
+        if (question == null)
+        {
+            socket.SendDto(new ServerSendsErrorMessageDto
             {
-                QuestionId = dto.Id,
-                Message = "Time is up for answering the question."
-            };
-            timeOverDto.requestId = dto.requestId;
-            await _connectionManager.BroadcastToTopic(topic, timeOverDto);
-            _logger.LogDebug("Time-over message broadcasted for question {QuestionId}", dto.Id);
+                Error = "No available questions for this game.",
+                requestId = dto.requestId
+            });
+            return;
         }
+
+        _logger.LogDebug("Broadcasting question {QuestionId} to topic '{Topic}'", question.Id, dto.Topic);
+        await _connectionManager.BroadcastToTopic(dto.Topic, question);
+
+        _logger.LogDebug("Question {QuestionId} broadcasted", question.Id);
+
+        // Wait for the question time limit.
+        await Task.Delay(question.TimeLimitSeconds * 1000);
+
+        // Send "Time Over" message
+        var timeOverDto = new QuestionTimeOverDto
+        {
+            QuestionId = question.Id,
+            Message = "Time is up for answering the question."
+        };
+        timeOverDto.requestId = dto.requestId;
+        await _connectionManager.BroadcastToTopic(dto.Topic, timeOverDto);
+        _logger.LogDebug("Time-over message broadcasted for question {QuestionId}", question.Id);
     }
 }

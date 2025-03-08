@@ -54,8 +54,6 @@ public partial class KahootDbContext : DbContext
 
             entity.ToTable("player", "kahoot");
 
-            entity.HasIndex(e => new { e.GameId, e.Nickname }, "unique_nickname_per_game").IsUnique();
-
             entity.Property(e => e.Id)
                 .HasDefaultValueSql("gen_random_uuid()")
                 .HasColumnName("id");
@@ -64,6 +62,7 @@ public partial class KahootDbContext : DbContext
 
             entity.HasOne(d => d.Game).WithMany(p => p.Players)
                 .HasForeignKey(d => d.GameId)
+                .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("player_game_id_fkey");
         });
 
@@ -80,16 +79,15 @@ public partial class KahootDbContext : DbContext
 
             entity.HasOne(d => d.Player).WithMany(p => p.PlayerAnswers)
                 .HasForeignKey(d => d.PlayerId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("player_answer_player_id_fkey");
 
             entity.HasOne(d => d.Question).WithMany(p => p.PlayerAnswers)
                 .HasForeignKey(d => d.QuestionId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("player_answer_question_id_fkey");
 
             entity.HasOne(d => d.SelectedOption).WithMany(p => p.PlayerAnswers)
                 .HasForeignKey(d => d.SelectedOptionId)
+                .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("player_answer_selected_option_id_fkey");
         });
 
@@ -110,6 +108,7 @@ public partial class KahootDbContext : DbContext
 
             entity.HasOne(d => d.Game).WithMany(p => p.Questions)
                 .HasForeignKey(d => d.GameId)
+                .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("question_game_id_fkey");
         });
 
@@ -128,6 +127,7 @@ public partial class KahootDbContext : DbContext
 
             entity.HasOne(d => d.Question).WithMany(p => p.QuestionOptions)
                 .HasForeignKey(d => d.QuestionId)
+                .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("question_option_question_id_fkey");
         });
 
@@ -147,10 +147,12 @@ public partial class KahootDbContext : DbContext
 
             entity.HasOne(d => d.Game).WithMany(p => p.RoundResults)
                 .HasForeignKey(d => d.GameId)
+                .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("round_result_game_id_fkey");
 
             entity.HasOne(d => d.Player).WithMany(p => p.RoundResults)
                 .HasForeignKey(d => d.PlayerId)
+                .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("round_result_player_id_fkey");
         });
 

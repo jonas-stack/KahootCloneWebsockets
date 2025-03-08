@@ -1,54 +1,55 @@
-drop schema if exists kahoot cascade;
-create schema if not exists kahoot;
+DROP SCHEMA IF EXISTS kahoot CASCADE;
+CREATE SCHEMA IF NOT EXISTS kahoot;
 
--- Make sure you enable the pgcrypto extension if not already done:
 CREATE EXTENSION IF NOT EXISTS pgcrypto;
 
-create table kahoot.game
+
+CREATE TABLE kahoot.game
 (
-    id         uuid primary key default gen_random_uuid(),
-    name       text not null,
-    created_by text not null
+    id         UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    name       TEXT NOT NULL,
+    created_by UUID NOT NULL  
 );
 
-create table kahoot.question
+
+CREATE TABLE kahoot.player
 (
-    id            uuid primary key default gen_random_uuid(),
-    game_id       uuid references kahoot.game (id),
-    question_text text not null,
-    answered      boolean not null default false
+    id       UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    game_id  UUID REFERENCES kahoot.game (id) ON DELETE CASCADE,
+    nickname TEXT NOT NULL
 );
 
-create table kahoot.question_option
+
+CREATE TABLE kahoot.question
 (
-    id          uuid primary key default gen_random_uuid(),
-    question_id uuid references kahoot.question (id),
-    option_text text not null,
-    is_correct  boolean not null
+    id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    game_id       UUID REFERENCES kahoot.game (id) ON DELETE CASCADE,
+    question_text TEXT NOT NULL,
+    answered      BOOLEAN NOT NULL DEFAULT FALSE
 );
 
-create table kahoot.player
+CREATE TABLE kahoot.question_option
 (
-    id       uuid primary key default gen_random_uuid(),
-    game_id  uuid references kahoot.game (id),
-    nickname text not null,
-    constraint unique_nickname_per_game unique (game_id, nickname)
+    id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    question_id UUID REFERENCES kahoot.question (id) ON DELETE CASCADE,
+    option_text TEXT NOT NULL,
+    is_correct  BOOLEAN NOT NULL
 );
 
-create table kahoot.player_answer
+CREATE TABLE kahoot.player_answer
 (
-    player_id          uuid references kahoot.player (id),
-    question_id        uuid references kahoot.question (id),
-    selected_option_id uuid references kahoot.question_option (id),
-    answer_timestamp   timestamp with time zone,
-    primary key (player_id, question_id)
+    player_id          UUID REFERENCES kahoot.player (id) ON DELETE CASCADE,
+    question_id        UUID REFERENCES kahoot.question (id) ON DELETE CASCADE,
+    selected_option_id UUID REFERENCES kahoot.question_option (id) ON DELETE CASCADE,
+    answer_timestamp   TIMESTAMP WITH TIME ZONE,
+    PRIMARY KEY (player_id, question_id)
 );
 
-create table kahoot.round_result
+CREATE TABLE kahoot.round_result
 (
-    id           uuid primary key default gen_random_uuid(),
-    game_id      uuid references kahoot.game (id),
-    round_number int not null,
-    player_id    uuid references kahoot.player (id),
-    score        int not null
+    id           UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    game_id      UUID REFERENCES kahoot.game (id) ON DELETE CASCADE,
+    round_number INT NOT NULL,
+    player_id    UUID REFERENCES kahoot.player (id) ON DELETE CASCADE,
+    score        INT NOT NULL
 );

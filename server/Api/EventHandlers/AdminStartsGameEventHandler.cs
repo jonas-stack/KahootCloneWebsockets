@@ -4,6 +4,8 @@ using DataAccess.Models;
 using Fleck;
 using WebSocketBoilerplate;
 using Api.Services;
+using DataAccess.ModelDtos;
+using Microsoft.EntityFrameworkCore;
 
 namespace Api.EventHandlers
 {
@@ -28,51 +30,56 @@ namespace Api.EventHandlers
 
         public override async Task Handle(AdminStartsGameDto dto, IWebSocketConnection socket)
         {
-            if (dto == null || string.IsNullOrEmpty(dto.Name))
+            if (dto == null || string.IsNullOrEmpty(dto.GameId))
             {
                 socket.SendDto(new ServerSendsErrorMessageDto
                 {
-                    Error = "Invalid game data.",
+                    Error = "Invalid game selection. A valid GameId is required.",
                     requestId = dto?.requestId
                 });
                 return;
             }
 
-            _logger.LogDebug("Starting game with name: {GameName}", dto.Name);
-
-            // Create new game id and set the creator.
-            var gameId = Guid.NewGuid();
-            var clientIdString = await _connectionManager.GetClientIdFromSocketId(socket.ConnectionInfo.Id.ToString());
-            if (!Guid.TryParse(clientIdString, out Guid clientGuid))
+            if (!Guid.TryParse(dto.GameId, out Guid gameId))
             {
-                _logger.LogWarning("Invalid client GUID: {ClientId}", clientIdString);
-                socket.SendDto(new ServerSendsErrorMessageDto 
-                { 
-                    Error = "Invalid client identifier.", 
-                    requestId = dto.requestId 
+                socket.SendDto(new ServerSendsErrorMessageDto
+                {
+                    Error = "Invalid GameId format.",
+                    requestId = dto.requestId
                 });
                 return;
             }
 
-            // Map DTO to entity and save.
-            var gameEntity = new Game()
+            _logger.LogDebug("Fetching game with ID: {GameId}", gameId);
+
+            //Fetch the game from the database (Pre-existing)
+            var gameEntity = await _dbContext.Games
+                .Include(g => g.Questions)
+                .ThenInclude(q => q.QuestionOptions)
+                .FirstOrDefaultAsync(g => g.Id == gameId);
+
+            if (gameEntity == null)
             {
-                Id = gameId,
-                Name = dto.Name,
-                CreatedBy = clientGuid.ToString()
-            };
+                _logger.LogWarning("Game with ID {GameId} not found.", gameId);
+                socket.SendDto(new ServerSendsErrorMessageDto
+                {
+                    Error = "Game not found.",
+                    requestId = dto.requestId
+                });
+                return;
+            }
 
-            _dbContext.Games.Add(gameEntity);
-            await _dbContext.SaveChangesAsync();
-            _logger.LogDebug("Game saved with Id: {GameId}", gameId);
+            _logger.LogDebug("Game {GameName} retrieved, broadcasting start...", gameEntity.Name);
 
-            // Add admin to lobby and broadcast game start.
-            await _connectionManager.AddToTopic("lobby", clientIdString);
-            await _connectionManager.BroadcastToTopic("lobby", dto);
-            _logger.LogDebug("Broadcasted game start for game: {GameId}", gameId);
+            //Convert GameEntity to DTO
+            var gameDto = new GameDto(gameEntity); // ✅ Let the constructor handle mapping
 
-            // Broadcast questions associated with this game.
-            await _questionBroadcastService.BroadcastQuestionsForGameAsync(gameId, gameId.ToString());
+            //Broadcast game start
+            await _connectionManager.BroadcastToTopic("lobby", gameDto);
+            _logger.LogDebug("Game {GameName} started.", gameEntity.Name);
+
+            //Broadcast questions for this game
+            await _questionBroadcastService.BroadcastQuestionsForGameAsync(gameEntity.Id, gameEntity.Id.ToString());
         }
     }
 }

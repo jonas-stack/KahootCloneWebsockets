@@ -9,7 +9,7 @@ public partial class Game
 
     public string Name { get; set; } = null!;
 
-    public string CreatedBy { get; set; } = null!;
+    public Guid CreatedBy { get; set; }
 
     public virtual ICollection<Player> Players { get; set; } = new List<Player>();
 

@@ -116,7 +116,9 @@ namespace Api.EventHandlers.EventMessageDtos
         {
             eventType = "AdminStartsGame";
         }
-        public required string Name { get; set; }
+
+        // 🆕 Add GameId property
+        public required string GameId { get; set; }
     }
     
     // Generic error message.

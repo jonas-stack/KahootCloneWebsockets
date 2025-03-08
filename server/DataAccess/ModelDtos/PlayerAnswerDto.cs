@@ -2,8 +2,20 @@
 
 public class PlayerAnswerDto 
 {
-    public required string PlayerId { get; set; }
-    public required string QuestionId { get; set; }
-    public string? SelectedOptionId { get; set; }
+    public Guid PlayerId { get; set; }
+    public Guid QuestionId { get; set; } 
+    public Guid? SelectedOptionId { get; set; }
     public DateTime? AnswerTimestamp { get; set; }
+
+    // ✅ Constructor for mapping from entity
+    public PlayerAnswerDto(DataAccess.Models.PlayerAnswer answer)
+    {
+        PlayerId = answer.PlayerId;
+        QuestionId = answer.QuestionId;
+        SelectedOptionId = answer.SelectedOptionId;
+        AnswerTimestamp = answer.AnswerTimestamp;
+    }
+
+    // ✅ Parameterless constructor for serialization
+    public PlayerAnswerDto() { }
 }
