@@ -22,7 +22,7 @@ namespace Api.EventHandlers
 
         public override async Task Handle(PlayerSubmitsAnswerDto dto, IWebSocketConnection socket)
         {
-            if (!Guid.TryParse(dto.PlayerId, out Guid playerId) || dto.QuestionId == Guid.Empty)
+            if (!Guid.TryParse(dto.PlayerId, out Guid playerId) || dto.QuestionId == Guid.Empty || dto.SelectedOptionId == null)
             {
                 socket.SendDto(new ServerSendsErrorMessageDto
                 {
@@ -34,21 +34,57 @@ namespace Api.EventHandlers
 
             _logger.LogDebug("Player {PlayerId} submitted an answer for question {QuestionId}", dto.PlayerId, dto.QuestionId);
 
-            var playerAnswer = new PlayerAnswer
+            // ✅ Check if the player exists
+            var player = await _dbContext.Players.FindAsync(playerId);
+            if (player == null)
             {
-                PlayerId = playerId,
-                QuestionId = dto.QuestionId,
-                SelectedOptionId = dto.SelectedOptionId,
-                AnswerTimestamp = DateTime.UtcNow
-            };
+                socket.SendDto(new ServerSendsErrorMessageDto
+                {
+                    Error = "Player does not exist.",
+                    requestId = dto.requestId
+                });
+                return;
+            }
 
-            _dbContext.PlayerAnswers.Add(playerAnswer);
-            await _dbContext.SaveChangesAsync();
+            // ✅ Check if the question exists
+            var question = await _dbContext.Questions
+                .Include(q => q.QuestionOptions)
+                .FirstOrDefaultAsync(q => q.Id == dto.QuestionId);
+            if (question == null)
+            {
+                socket.SendDto(new ServerSendsErrorMessageDto
+                {
+                    Error = "Question does not exist.",
+                    requestId = dto.requestId
+                });
+                return;
+            }
 
-            socket.SendDto(new ServerConfirmsPlayerJoinDto
+            // ✅ Check if the selected option exists for the question
+            var selectedOption = question.QuestionOptions.FirstOrDefault(o => o.Id == dto.SelectedOptionId);
+            if (selectedOption == null)
+            {
+                socket.SendDto(new ServerSendsErrorMessageDto
+                {
+                    Error = "Invalid answer option.",
+                    requestId = dto.requestId
+                });
+                return;
+            }
+
+            // ✅ Check if the answer is correct
+            bool isCorrect = selectedOption.IsCorrect;
+            int score = isCorrect ? 10 : 0;  // Example scoring logic
+
+            _logger.LogInformation("Player {PlayerId} answered {AnswerCorrect}", playerId, isCorrect ? "CORRECTLY" : "INCORRECTLY");
+
+            // ✅ Send response to player
+            socket.SendDto(new AnswerValidationDto
             {
                 PlayerId = dto.PlayerId,
-                Message = "Answer received.",
+                QuestionId = dto.QuestionId,
+                IsCorrect = isCorrect,
+                ScoreAwarded = score,
                 requestId = dto.requestId
             });
         }

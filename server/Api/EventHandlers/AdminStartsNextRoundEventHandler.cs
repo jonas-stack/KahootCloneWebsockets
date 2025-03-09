@@ -52,7 +52,19 @@ namespace Api.EventHandlers
 
             _logger.LogDebug("Admin is starting round {RoundNumber} for game {GameId}", dto.RoundNumber, gameId);
 
-            // Fetch a new unanswered question from the database
+            // ✅ Send game progression before broadcasting the question
+            var gameProgressionDto = new GameProgressionDto
+            {
+                GameId = gameId,
+                CurrentRound = dto.RoundNumber,
+                TotalRounds = 5, // Set dynamically if needed
+                Message = $"Round {dto.RoundNumber} is starting!"
+            };
+
+            await _connectionManager.BroadcastToTopic(dto.GameId, gameProgressionDto);
+            _logger.LogDebug("Game progression sent for round {RoundNumber} in game {GameId}", dto.RoundNumber, gameId);
+
+            // ✅ Fetch an unanswered question from the database
             var questionEntity = await _dbContext.Questions
                 .Include(q => q.QuestionOptions)
                 .Where(q => q.GameId == gameId && !q.Answered)
@@ -61,15 +73,21 @@ namespace Api.EventHandlers
 
             if (questionEntity == null)
             {
-                socket.SendDto(new ServerSendsErrorMessageDto
+                // ✅ If no more questions remain, broadcast "Game Over"
+                var gameOverDto = new GameProgressionDto
                 {
-                    Error = "No available questions for this game.",
-                    requestId = dto?.requestId
-                });
+                    GameId = gameId,
+                    CurrentRound = dto.RoundNumber,
+                    TotalRounds = dto.RoundNumber,
+                    Message = "Game Over! No more questions left."
+                };
+
+                await _connectionManager.BroadcastToTopic(dto.GameId, gameOverDto);
+                _logger.LogInformation("Game {GameId} has ended. No more questions available.", gameId);
                 return;
             }
 
-            // Map to QuestionDto (from DataAccess)
+            // ✅ Convert the question entity into a DTO
             var questionDto = new QuestionDto
             {
                 Id = questionEntity.Id,
@@ -81,20 +99,20 @@ namespace Api.EventHandlers
                     Id = opt.Id,
                     QuestionId = opt.QuestionId,
                     OptionText = opt.OptionText,
-                    IsCorrect = opt.IsCorrect
+                    IsCorrect = false // Hide correct answers
                 }).ToList()
             };
 
-            // Map to RoundStartedDto
+            // ✅ Use `RoundStartedDto` to broadcast the question
             var roundStartedDto = new RoundStartedDto
             {
                 RoundNumber = dto.RoundNumber,
                 Question = questionDto
             };
 
-            // Broadcast the new round to all players in the game
             await _connectionManager.BroadcastToTopic(dto.GameId, roundStartedDto);
-            _logger.LogDebug("Round {RoundNumber} started for game {GameId}", dto.RoundNumber, dto.GameId);
+            _logger.LogDebug("Round {RoundNumber} started with question {QuestionId} in game {GameId}", 
+                dto.RoundNumber, questionDto.Id, gameId);
         }
     }
 }

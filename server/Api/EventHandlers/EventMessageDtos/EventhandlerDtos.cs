@@ -103,6 +103,19 @@ namespace Api.EventHandlers.EventMessageDtos
         public required string MemberId { get; set; } 
         public string? GameId { get; set; }
     }
+    
+    public class AnswerValidationDto : CustomBaseDto
+    {
+        public AnswerValidationDto()
+        {
+            eventType = "AnswerValidation";
+        }
+
+        public required string PlayerId { get; set; }
+        public required Guid QuestionId { get; set; }
+        public bool IsCorrect { get; set; }
+        public int ScoreAwarded { get; set; }
+    }
 
     public class ServerSendsErrorMessageDto : CustomBaseDto
     {
