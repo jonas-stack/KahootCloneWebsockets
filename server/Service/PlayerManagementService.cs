@@ -53,5 +53,11 @@ namespace Service
                 _logger.LogWarning("Attempted to remove non-existing player: {PlayerId}", playerId);
             }
         }
+        
+        public async Task<Player?> GetPlayerByNicknameAsync(string nickname, string gameId)
+        {
+            return await _dbContext.Players
+                .FirstOrDefaultAsync(p => p.Nickname == nickname && p.GameId.ToString() == gameId);
+        }
     }
 }

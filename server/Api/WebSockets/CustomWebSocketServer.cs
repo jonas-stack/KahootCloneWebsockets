@@ -26,12 +26,14 @@ public class CustomWebSocketServer(IConnectionManager manager, ILogger<CustomWeb
                 ? socket.ConnectionInfo.Path.Split('?')[1]
                 : "";
 
-            var id = HttpUtility.ParseQueryString(queryString)["id"];
+            var nickname = HttpUtility.ParseQueryString(queryString)["id"]; // Use the provided nickname
+            var id = Guid.NewGuid().ToString(); // Generate a new ID for the player
 
             socket.OnOpen = async () =>
             {
                 logger.LogInformation($"Socket connected: {socket.ConnectionInfo.Id}");
-                if (id == null) throw new ArgumentNullException(nameof(id));
+
+                if (nickname == null) throw new ArgumentNullException(nameof(nickname));
 
                 using var scope = app.Services.CreateScope();
                 var gameManagementService = scope.ServiceProvider.GetRequiredService<GameManagementService>();
@@ -41,15 +43,25 @@ public class CustomWebSocketServer(IConnectionManager manager, ILogger<CustomWeb
                 var activeGame = await gameManagementService.GetOrCreateActiveGameAsync();
                 var activeGameId = activeGame.Id.ToString();
 
-                // Add player to the database
-                await playerManagementService.AddPlayerAsync(
-                    playerId: id, 
-                    nickname: $"Player_{id.Substring(0, 5)}", 
-                    gameId: activeGameId
-                );
+                // Generate a new player ID if they don't have one
+                var existingPlayer = await playerManagementService.GetPlayerByNicknameAsync(nickname, activeGameId);
+                if (existingPlayer != null)
+                {
+                    id = existingPlayer.Id.ToString(); // Use existing player ID
+                }
+                else
+                {
+                    id = Guid.NewGuid().ToString(); // Generate new ID
+                    await playerManagementService.AddPlayerAsync(
+                        playerId: id,
+                        nickname: nickname,
+                        gameId: activeGameId
+                    );
+                }
 
-                manager.OnOpen(socket, id);
+                manager.OnOpen(socket, id); // Connect player to WebSocket with assigned ID
             };
+
 
             socket.OnClose = async () =>
             {
