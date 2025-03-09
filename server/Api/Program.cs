@@ -13,7 +13,9 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddSingleton<IConnectionManager, DictionaryConnectionManager>();
 builder.Services.AddSingleton<CustomWebSocketServer>();
 builder.Services.AddSingleton<IEventHandlersService, EventHandlersService>();
-builder.Services.AddScoped<EventHandlerServices>();
+builder.Services.AddScoped<QuestionManagementService>();
+builder.Services.AddScoped<PlayerManagementService>();
+builder.Services.AddScoped<GameManagementService>();
 
 // ✅ Scan all assemblies (API + DataAccess) to detect all event handlers.
 var executingAssembly = Assembly.GetExecutingAssembly();

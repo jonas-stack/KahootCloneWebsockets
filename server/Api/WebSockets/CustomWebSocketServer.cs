@@ -3,6 +3,7 @@ using System.Net.Sockets;
 using System.Web;
 using Api.EventHandlers.EventMessageDtos;
 using Fleck;
+using Service;
 using WebSocketBoilerplate;
 
 namespace Api.WebSockets;
@@ -27,19 +28,42 @@ public class CustomWebSocketServer(IConnectionManager manager, ILogger<CustomWeb
 
             var id = HttpUtility.ParseQueryString(queryString)["id"];
 
-            socket.OnOpen = () =>
+            socket.OnOpen = async () =>
             {
                 logger.LogInformation($"Socket connected: {socket.ConnectionInfo.Id}");
                 if (id == null) throw new ArgumentNullException(nameof(id));
+
+                using var scope = app.Services.CreateScope();
+                var gameManagementService = scope.ServiceProvider.GetRequiredService<GameManagementService>();
+                var playerManagementService = scope.ServiceProvider.GetRequiredService<PlayerManagementService>();
+
+                // Get the active game ID dynamically
+                var activeGame = await gameManagementService.GetOrCreateActiveGameAsync();
+                var activeGameId = activeGame.Id.ToString();
+
+                // Add player to the database
+                await playerManagementService.AddPlayerAsync(
+                    playerId: id, 
+                    nickname: $"Player_{id.Substring(0, 5)}", 
+                    gameId: activeGameId
+                );
+
                 manager.OnOpen(socket, id);
             };
 
-            socket.OnClose = () =>
+            socket.OnClose = async () =>
             {
                 logger.LogInformation($"Socket disconnected: {socket.ConnectionInfo.Id}");
-                if (id == null) throw new ArgumentNullException(nameof(id));
+                if (id == null) return;
+
+                using var scope = app.Services.CreateScope(); // Create scoped instance
+                var playerManagementService = scope.ServiceProvider.GetRequiredService<PlayerManagementService>();
+
+                await playerManagementService.RemovePlayerAsync(id); // Remove player from database
+
                 manager.OnClose(socket, id);
             };
+
             
             socket.OnMessage = message =>
             {

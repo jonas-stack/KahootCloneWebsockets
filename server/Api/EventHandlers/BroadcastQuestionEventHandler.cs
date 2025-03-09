@@ -10,13 +10,13 @@ namespace Api.EventHandlers;
 
 public class BroadcastQuestionEventHandler : BaseEventHandler<AdminStartsNextRoundDto>
 {
-    private readonly EventHandlerServices _eventHandlerServices;
+    private readonly QuestionManagementService _questionManagementService;
     private readonly IConnectionManager _connectionManager;
     private readonly ILogger<BroadcastQuestionEventHandler> _logger;
 
-    public BroadcastQuestionEventHandler(EventHandlerServices eventHandlerServices, IConnectionManager connectionManager, ILogger<BroadcastQuestionEventHandler> logger)
+    public BroadcastQuestionEventHandler(QuestionManagementService questionManagementService, IConnectionManager connectionManager, ILogger<BroadcastQuestionEventHandler> logger)
     {
-        _eventHandlerServices = eventHandlerServices;
+        _questionManagementService = questionManagementService;
         _connectionManager = connectionManager;
         _logger = logger;
     }
@@ -36,7 +36,7 @@ public class BroadcastQuestionEventHandler : BaseEventHandler<AdminStartsNextRou
         _logger.LogDebug("Admin is starting round {RoundNumber} for game {GameId}", dto.RoundNumber, dto.GameId);
 
         // ✅ Fetch a new unanswered question from the service layer
-        var questionDto = await _eventHandlerServices.GetUnansweredQuestionAsync(Guid.Parse(dto.GameId));
+        var questionDto = await _questionManagementService.GetUnansweredQuestionAsync(Guid.Parse(dto.GameId));
 
         if (questionDto == null)
         {

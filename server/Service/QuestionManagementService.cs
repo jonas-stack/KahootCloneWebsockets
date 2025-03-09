@@ -5,12 +5,12 @@ using Microsoft.Extensions.Logging;
 
 namespace Service
 {
-    public class EventHandlerServices
+    public class QuestionManagementService
     {
         private readonly KahootDbContext _dbContext;
-        private readonly ILogger<EventHandlerServices> _logger;
+        private readonly ILogger<QuestionManagementService> _logger;
 
-        public EventHandlerServices(KahootDbContext dbContext, ILogger<EventHandlerServices> logger)
+        public QuestionManagementService(KahootDbContext dbContext, ILogger<QuestionManagementService> logger)
         {
             _dbContext = dbContext;
             _logger = logger;
