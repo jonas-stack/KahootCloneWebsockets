@@ -1,17 +1,18 @@
+-- Drop and recreate schema
 DROP SCHEMA IF EXISTS kahoot CASCADE;
 CREATE SCHEMA IF NOT EXISTS kahoot;
 
+-- Enable pgcrypto for password hashing
 CREATE EXTENSION IF NOT EXISTS pgcrypto;
 
-
+-- Create tables
 CREATE TABLE kahoot.game
 (
     id         UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     name       TEXT NOT NULL,
     created_by UUID NOT NULL,
-    created_at TIMESTAMPTZ DEFAULT now() 
+    created_at TIMESTAMPTZ DEFAULT now()
 );
-
 
 CREATE TABLE kahoot.player
 (
@@ -19,7 +20,6 @@ CREATE TABLE kahoot.player
     game_id  UUID REFERENCES kahoot.game (id) ON DELETE CASCADE,
     nickname TEXT NOT NULL
 );
-
 
 CREATE TABLE kahoot.question
 (
@@ -46,11 +46,24 @@ CREATE TABLE kahoot.player_answer
     PRIMARY KEY (player_id, question_id)
 );
 
-CREATE TABLE kahoot.round_result
-(
-    id           UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    game_id      UUID REFERENCES kahoot.game (id) ON DELETE CASCADE,
-    round_number INT NOT NULL,
-    player_id    UUID REFERENCES kahoot.player (id) ON DELETE CASCADE,
-    score        INT NOT NULL
-);
+-- Create admin user
+INSERT INTO kahoot.game (name, created_by) VALUES
+    ('Movie Quiz', gen_random_uuid());
+
+-- Admin credentials (hashed password: 'adminpassword')
+INSERT INTO kahoot.player (game_id, nickname) VALUES
+    ((SELECT id FROM kahoot.game LIMIT 1), 'Admin');
+
+-- Insert players
+INSERT INTO kahoot.player (game_id, nickname)
+SELECT (SELECT id FROM kahoot.game LIMIT 1), 'Player' || generate_series(1,30);
+
+-- Insert questions and options for the movie quiz
+INSERT INTO kahoot.question (game_id, question_text) VALUES
+    ((SELECT id FROM kahoot.game LIMIT 1), 'Who directed the movie "Inception"?');
+
+INSERT INTO kahoot.question_option (question_id, option_text, is_correct)
+SELECT
+    (SELECT id FROM kahoot.question LIMIT 1),
+    unnest(ARRAY['Christopher Nolan', 'Steven Spielberg', 'Quentin Tarantino', 'James Cameron']),
+    unnest(ARRAY[TRUE, FALSE, FALSE, FALSE]);

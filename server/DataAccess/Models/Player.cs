@@ -14,6 +14,4 @@ public partial class Player
     public virtual Game? Game { get; set; }
 
     public virtual ICollection<PlayerAnswer> PlayerAnswers { get; set; } = new List<PlayerAnswer>();
-
-    public virtual ICollection<RoundResult> RoundResults { get; set; } = new List<RoundResult>();
 }

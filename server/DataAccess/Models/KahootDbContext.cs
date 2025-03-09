@@ -25,8 +25,6 @@ public partial class KahootDbContext : DbContext
 
     public virtual DbSet<QuestionOption> QuestionOptions { get; set; }
 
-    public virtual DbSet<RoundResult> RoundResults { get; set; }
-
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
         => optionsBuilder.UseNpgsql("Host=localhost;Port=5432;Database=exampledb;Username=example;Password=example");
@@ -132,31 +130,6 @@ public partial class KahootDbContext : DbContext
                 .HasForeignKey(d => d.QuestionId)
                 .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("question_option_question_id_fkey");
-        });
-
-        modelBuilder.Entity<RoundResult>(entity =>
-        {
-            entity.HasKey(e => e.Id).HasName("round_result_pkey");
-
-            entity.ToTable("round_result", "kahoot");
-
-            entity.Property(e => e.Id)
-                .HasDefaultValueSql("gen_random_uuid()")
-                .HasColumnName("id");
-            entity.Property(e => e.GameId).HasColumnName("game_id");
-            entity.Property(e => e.PlayerId).HasColumnName("player_id");
-            entity.Property(e => e.RoundNumber).HasColumnName("round_number");
-            entity.Property(e => e.Score).HasColumnName("score");
-
-            entity.HasOne(d => d.Game).WithMany(p => p.RoundResults)
-                .HasForeignKey(d => d.GameId)
-                .OnDelete(DeleteBehavior.Cascade)
-                .HasConstraintName("round_result_game_id_fkey");
-
-            entity.HasOne(d => d.Player).WithMany(p => p.RoundResults)
-                .HasForeignKey(d => d.PlayerId)
-                .OnDelete(DeleteBehavior.Cascade)
-                .HasConstraintName("round_result_player_id_fkey");
         });
 
         OnModelCreatingPartial(modelBuilder);

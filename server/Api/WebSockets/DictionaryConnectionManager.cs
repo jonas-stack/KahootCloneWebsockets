@@ -12,6 +12,8 @@ public class DictionaryConnectionManager(ILogger<DictionaryConnectionManager> lo
     public ConcurrentDictionary<string, HashSet<string>> MemberTopics { get; set; } = new();
     public ConcurrentDictionary<string /* Client ID */, IWebSocketConnection> ConnectionIdToSocket { get; } = new();
     public ConcurrentDictionary<string /* Socket ID */, string /* Client ID */> SocketToConnectionId { get; } = new();
+    
+    private readonly ConcurrentDictionary<string /* Client ID */, string /* Nickname */> _connectionNicknames = new();
 
     public Task<ConcurrentDictionary<string, HashSet<string>>> GetAllTopicsWithMembers()
     {
