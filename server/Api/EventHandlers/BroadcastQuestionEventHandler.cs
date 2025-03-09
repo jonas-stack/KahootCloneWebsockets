@@ -35,28 +35,50 @@ public class BroadcastQuestionEventHandler : BaseEventHandler<AdminStartsNextRou
 
         _logger.LogDebug("Admin is starting round {RoundNumber} for game {GameId}", dto.RoundNumber, dto.GameId);
 
-        // ✅ Fetch a new unanswered question from the service layer
+        // ✅ Fetch an unanswered question from the database
         var questionDto = await _questionManagementService.GetUnansweredQuestionAsync(Guid.Parse(dto.GameId));
 
         if (questionDto == null)
         {
-            socket.SendDto(new ServerSendsErrorMessageDto
+            // ✅ No questions left → Trigger `GameProgressionEventHandler`
+            var gameProgressionDto = new GameProgressionDto
             {
-                Error = "No available questions for this game.",
-                requestId = dto.requestId
-            });
+                GameId = Guid.Parse(dto.GameId),
+                CurrentRound = dto.RoundNumber,
+                TotalRounds = dto.RoundNumber,
+                Message = "Game Over! No more questions left."
+            };
+
+            await _connectionManager.BroadcastToTopic(dto.GameId, gameProgressionDto);
+            _logger.LogInformation("Game {GameId} progression updated: No more questions left.", dto.GameId);
             return;
         }
 
-        // ✅ Map to RoundStartedDto
+        // ✅ Hide correct answers before broadcasting to players
+        foreach (var option in questionDto.QuestionOptions)
+        {
+            option.IsCorrect = false;
+        }
+
+        // ✅ Broadcast game progression update before question
+        var gameProgressionUpdate = new GameProgressionDto
+        {
+            GameId = Guid.Parse(dto.GameId),
+            CurrentRound = dto.RoundNumber,
+            TotalRounds = dto.RoundNumber + 1, // Increment for next round
+            Message = $"Round {dto.RoundNumber} is starting!"
+        };
+        await _connectionManager.BroadcastToTopic(dto.GameId, gameProgressionUpdate);
+
+        // ✅ Broadcast the question
         var roundStartedDto = new RoundStartedDto
         {
             RoundNumber = dto.RoundNumber,
             Question = questionDto
         };
-
-        // ✅ Broadcast the new round to all players
         await _connectionManager.BroadcastToTopic(dto.GameId, roundStartedDto);
-        _logger.LogDebug("Round {RoundNumber} started for game {GameId}", dto.RoundNumber, dto.GameId);
+
+        _logger.LogDebug("Broadcasted question {QuestionId} for round {RoundNumber} in game {GameId}",
+            questionDto.Id, dto.RoundNumber, dto.GameId);
     }
 }

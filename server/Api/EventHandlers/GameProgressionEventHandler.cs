@@ -40,6 +40,7 @@ namespace Api.EventHandlers
             {
                 dto.Message = "Game Over!";
             }
+
             _logger.LogDebug("Broadcasting game progression for game {GameId}: {Message}", dto.GameId, dto.Message);
             await _connectionManager.BroadcastToTopic(topic, dto);
         }

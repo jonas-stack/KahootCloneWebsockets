@@ -20,22 +20,35 @@ namespace Service
         {
             _logger.LogDebug("Fetching unanswered question for game {GameId}", gameId);
 
-            return await _dbContext.Questions
+            var question = await _dbContext.Questions
                 .Include(q => q.QuestionOptions)
                 .Where(q => q.GameId == gameId && !q.Answered)
                 .OrderBy(q => Guid.NewGuid()) // Random selection
-                .Select(q => new QuestionDto
-                {
-                    Id = q.Id,
-                    QuestionText = q.QuestionText,
-                    QuestionOptions = q.QuestionOptions.Select(opt => new QuestionOptionDto
-                    {
-                        Id = opt.Id,
-                        OptionText = opt.OptionText,
-                        IsCorrect = opt.IsCorrect
-                    }).ToList()
-                })
                 .FirstOrDefaultAsync();
+
+            if (question == null)
+            {
+                _logger.LogWarning("No unanswered questions found for game {GameId}", gameId);
+                return null;
+            }
+
+            // ✅ Mark the question as answered
+            question.Answered = true;
+            await _dbContext.SaveChangesAsync();
+
+            return new QuestionDto
+            {
+                Id = question.Id,
+                GameId = question.GameId,
+                QuestionText = question.QuestionText,
+                Answered = true, // ✅ Ensure it's marked answered
+                QuestionOptions = question.QuestionOptions.Select(opt => new QuestionOptionDto
+                {
+                    Id = opt.Id,
+                    OptionText = opt.OptionText,
+                    IsCorrect = opt.IsCorrect
+                }).ToList()
+            };
         }
 
     }
