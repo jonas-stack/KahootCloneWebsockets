@@ -23,7 +23,7 @@ namespace Api.EventHandlers
 
         public override async Task Handle(AdminStartsGameDto dto, IWebSocketConnection socket)
         {
-            if (!Guid.TryParse(dto.GameId, out Guid gameId))
+            if (!Guid.TryParse(dto.GameId.ToString(), out Guid gameId))
             {
                 socket.SendDto(new ServerSendsErrorMessageDto
                 {
@@ -32,6 +32,8 @@ namespace Api.EventHandlers
                 });
                 return;
             }
+
+            await _connectionManager.BroadcastToTopic(gameId.ToString(), new GameStartedDto { GameId = gameId });
 
             _logger.LogDebug("Fetching game with ID: {GameId}", gameId);
 
@@ -52,7 +54,7 @@ namespace Api.EventHandlers
 
             _logger.LogDebug("Game {GameName} started, broadcasting to players...", gameEntity.Name);
 
-            await _connectionManager.BroadcastToTopic(dto.GameId, new GameStartedDto { GameId = dto.GameId });
+            await _connectionManager.BroadcastToTopic(gameId.ToString(), new GameStartedDto { GameId = gameId });
 
             _logger.LogDebug("Game {GameName} successfully started.", gameEntity.Name);
         }

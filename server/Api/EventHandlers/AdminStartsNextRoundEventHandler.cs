@@ -30,7 +30,7 @@ namespace Api.EventHandlers
 
         public override async Task Handle(AdminStartsNextRoundDto dto, IWebSocketConnection socket)
         {
-            if (dto == null || string.IsNullOrEmpty(dto.GameId))
+            if (dto == null || dto.GameId == Guid.Empty)
             {
                 socket.SendDto(new ServerSendsErrorMessageDto
                 {
@@ -40,15 +40,7 @@ namespace Api.EventHandlers
                 return;
             }
 
-            if (!Guid.TryParse(dto.GameId, out Guid gameId))
-            {
-                socket.SendDto(new ServerSendsErrorMessageDto
-                {
-                    Error = "Invalid GameId format.",
-                    requestId = dto?.requestId
-                });
-                return;
-            }
+            var gameId = dto.GameId;
 
             _logger.LogDebug("Admin is starting round {RoundNumber} for game {GameId}", dto.RoundNumber, gameId);
 
@@ -61,7 +53,7 @@ namespace Api.EventHandlers
                 Message = $"Round {dto.RoundNumber} is starting!"
             };
 
-            await _connectionManager.BroadcastToTopic(dto.GameId, gameProgressionDto);
+            await _connectionManager.BroadcastToTopic(gameId.ToString(), gameProgressionDto);
             _logger.LogDebug("Game progression sent for round {RoundNumber} in game {GameId}", dto.RoundNumber, gameId);
 
             // ✅ Fetch an unanswered question from the database
@@ -82,7 +74,7 @@ namespace Api.EventHandlers
                     Message = "Game Over! No more questions left."
                 };
 
-                await _connectionManager.BroadcastToTopic(dto.GameId, gameOverDto);
+                await _connectionManager.BroadcastToTopic(gameId.ToString(), gameOverDto);
                 _logger.LogInformation("Game {GameId} has ended. No more questions available.", gameId);
                 return;
             }
@@ -110,7 +102,7 @@ namespace Api.EventHandlers
                 Question = questionDto
             };
 
-            await _connectionManager.BroadcastToTopic(dto.GameId, roundStartedDto);
+            await _connectionManager.BroadcastToTopic(gameId.ToString(), roundStartedDto);
             _logger.LogDebug("Round {RoundNumber} started with question {QuestionId} in game {GameId}", 
                 dto.RoundNumber, questionDto.Id, gameId);
         }

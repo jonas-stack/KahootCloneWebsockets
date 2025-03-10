@@ -19,7 +19,7 @@ namespace Api.EventHandlers
         public override async Task Handle(PlayerJoinsLobbyDto dto, IWebSocketConnection socket)
         {
             // Validate the incoming DTO.
-            if (dto == null || string.IsNullOrEmpty(dto.PlayerId) || string.IsNullOrEmpty(dto.GameId))
+            if (dto == null || dto.PlayerId == Guid.Empty || dto.GameId == Guid.Empty)
             {
                 socket.SendDto(new ServerSendsErrorMessageDto
                 {
@@ -29,12 +29,12 @@ namespace Api.EventHandlers
                 return;
             }
 
-            string topic = dto.Topic; // GameId now acts as the topic
+            string topic = dto.GameId.ToString(); // GameId now acts as the topic
 
             _logger.LogDebug("Player '{PlayerId}' ({Nickname}) is attempting to join game '{GameId}'.", dto.PlayerId, dto.Nickname, topic);
 
             // Add the player to the game topic
-            await _connectionManager.AddToTopic(topic, dto.PlayerId);
+            await _connectionManager.AddToTopic(topic, dto.PlayerId.ToString());
             _logger.LogDebug("Player '{PlayerId}' added to game '{GameId}'.", dto.PlayerId, topic);
 
             // Retrieve and log the current members in the game
@@ -44,7 +44,7 @@ namespace Api.EventHandlers
             // Broadcast to all players in the game that a new member has joined
             var joinMessage = new MemberHasJoinedDto
             {
-                MemberId = dto.PlayerId,
+                MemberId = dto.PlayerId.ToString(),
                 Nickname = dto.Nickname,
                 requestId = dto.requestId
             };

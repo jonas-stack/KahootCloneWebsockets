@@ -23,7 +23,7 @@ public class BroadcastQuestionEventHandler : BaseEventHandler<AdminStartsNextRou
 
     public override async Task Handle(AdminStartsNextRoundDto dto, IWebSocketConnection socket)
     {
-        if (dto == null || string.IsNullOrEmpty(dto.GameId))
+        if (dto == null || dto.GameId == Guid.Empty)
         {
             socket.SendDto(new ServerSendsErrorMessageDto
             {
@@ -33,24 +33,26 @@ public class BroadcastQuestionEventHandler : BaseEventHandler<AdminStartsNextRou
             return;
         }
 
-        _logger.LogDebug("Admin is starting round {RoundNumber} for game {GameId}", dto.RoundNumber, dto.GameId);
+        var gameId = dto.GameId;
+
+        _logger.LogDebug("Admin is starting round {RoundNumber} for game {GameId}", dto.RoundNumber, gameId);
 
         // ✅ Fetch an unanswered question from the database
-        var questionDto = await _questionManagementService.GetUnansweredQuestionAsync(Guid.Parse(dto.GameId));
+        var questionDto = await _questionManagementService.GetUnansweredQuestionAsync(gameId);
 
         if (questionDto == null)
         {
             // ✅ No questions left → Trigger `GameProgressionEventHandler`
             var gameProgressionDto = new GameProgressionDto
             {
-                GameId = Guid.Parse(dto.GameId),
+                GameId = gameId,
                 CurrentRound = dto.RoundNumber,
                 TotalRounds = dto.RoundNumber,
                 Message = "Game Over! No more questions left."
             };
 
-            await _connectionManager.BroadcastToTopic(dto.GameId, gameProgressionDto);
-            _logger.LogInformation("Game {GameId} progression updated: No more questions left.", dto.GameId);
+            await _connectionManager.BroadcastToTopic(gameId.ToString(), gameProgressionDto);
+            _logger.LogInformation("Game {GameId} progression updated: No more questions left.", gameId);
             return;
         }
 
@@ -63,12 +65,12 @@ public class BroadcastQuestionEventHandler : BaseEventHandler<AdminStartsNextRou
         // ✅ Broadcast game progression update before question
         var gameProgressionUpdate = new GameProgressionDto
         {
-            GameId = Guid.Parse(dto.GameId),
+            GameId = gameId,
             CurrentRound = dto.RoundNumber,
             TotalRounds = dto.RoundNumber + 1, // Increment for next round
             Message = $"Round {dto.RoundNumber} is starting!"
         };
-        await _connectionManager.BroadcastToTopic(dto.GameId, gameProgressionUpdate);
+        await _connectionManager.BroadcastToTopic(gameId.ToString(), gameProgressionUpdate);
 
         // ✅ Broadcast the question
         var roundStartedDto = new RoundStartedDto
@@ -76,9 +78,9 @@ public class BroadcastQuestionEventHandler : BaseEventHandler<AdminStartsNextRou
             RoundNumber = dto.RoundNumber,
             Question = questionDto
         };
-        await _connectionManager.BroadcastToTopic(dto.GameId, roundStartedDto);
+        await _connectionManager.BroadcastToTopic(gameId.ToString(), roundStartedDto);
 
         _logger.LogDebug("Broadcasted question {QuestionId} for round {RoundNumber} in game {GameId}",
-            questionDto.Id, dto.RoundNumber, dto.GameId);
+            questionDto.Id, dto.RoundNumber, gameId);
     }
 }
